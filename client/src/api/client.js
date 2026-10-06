@@ -1,7 +1,13 @@
 import axios from 'axios';
 import i18n from '../i18n';
 
-const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+const isProduction = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1';
+const DEFAULT_PROD_API = 'https://med-ab.onrender.com';
+
+const API_URL =
+  import.meta.env.VITE_API_URL ||
+  import.meta.env.VITE_API_BASE_URL ||
+  (isProduction ? DEFAULT_PROD_API : 'http://localhost:5000');
 
 const api = axios.create({
   baseURL: API_URL,
