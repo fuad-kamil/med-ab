@@ -24,15 +24,20 @@ app.use(helmet({ referrerPolicy: { policy: 'no-referrer' } }));
 app.use(
   cors({
     origin: (origin, callback) => {
+      // Allow requests with no origin (curl, mobile, health checks)
       if (!origin) return callback(null, true);
+      const cleanOrigin = origin.replace(/\/$/, '');
+      const cleanClientUrl = (env.CLIENT_URL || '').replace(/\/$/, '');
+
       if (
-        origin === env.CLIENT_URL ||
-        origin.endsWith('.vercel.app') ||
-        origin.includes('localhost')
+        cleanOrigin === cleanClientUrl ||
+        cleanOrigin.endsWith('.vercel.app') ||
+        cleanOrigin.includes('localhost') ||
+        cleanOrigin.includes('127.0.0.1')
       ) {
-        return callback(null, true);
+        return callback(null, origin);
       }
-      return callback(null, true);
+      return callback(null, origin);
     },
     credentials: true,
   })
