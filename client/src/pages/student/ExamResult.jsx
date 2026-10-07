@@ -7,7 +7,7 @@ import { Button } from '../../components/Button';
 import PreferencesControls from '../../components/PreferencesControls';
 
 export default function ExamResult() {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { token: urlToken } = useParams();
   const location = useLocation();
   const navigate = useNavigate();
