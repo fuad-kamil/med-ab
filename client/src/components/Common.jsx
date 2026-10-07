@@ -1,13 +1,175 @@
+import { useState, useRef, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
+import { MoreVertical, AlertTriangle, RefreshCw } from 'lucide-react';
+import Button from './Button';
+
+export function StatusChip({
+  icon: Icon = null,
+  label,
+  variant = 'neutral',
+  size = 'md',
+  className = '',
+  ...props
+}) {
+  const variants = {
+    neutral: 'bg-surface-800/60 text-surface-300 border border-surface-700/50',
+    success: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+    warning: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+    danger: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+    primary: 'bg-primary-500/10 text-primary-400 border border-primary-500/20',
+    info: 'bg-sky-500/10 text-sky-400 border border-sky-500/20',
+  };
+
+  const sizes = {
+    sm: 'h-9 max-sm:h-11 px-3 text-xs',
+    md: 'h-10 max-sm:h-11 px-3.5 text-xs sm:text-sm',
+    lg: 'h-12 px-4 text-sm font-medium',
+  };
+
+  return (
+    <div
+      role="status"
+      aria-label={label}
+      className={`
+        inline-flex items-center justify-center gap-1.5
+        font-semibold rounded-[10px] whitespace-nowrap select-none
+        pointer-events-none transition-none shadow-none cursor-default
+        ${variants[variant] || variants.neutral}
+        ${sizes[size] || sizes.md}
+        ${className}
+      `}
+      {...props}
+    >
+      {Icon && <Icon className="w-4 h-4 shrink-0 stroke-[1.75]" />}
+      <span className="truncate">{label}</span>
+    </div>
+  );
+}
+
+export function ActionRow({ children, className = '', ...props }) {
+  return (
+    <div
+      data-action-row="true"
+      className={`
+        w-full grid grid-flow-col auto-cols-fr gap-2 items-center justify-stretch
+        sm:flex sm:items-center sm:justify-end sm:w-auto sm:gap-2
+        ${className}
+      `}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+}
+
+export function MenuButton({ items = [], label = 'More options', className = '' }) {
+  const [open, setOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  if (!items || items.length === 0) return null;
+
+  return (
+    <div className="relative inline-block" ref={menuRef}>
+      <button
+        type="button"
+        onClick={() => setOpen((prev) => !prev)}
+        aria-label={label}
+        title={label}
+        aria-expanded={open}
+        className={`
+          h-10 w-10 max-sm:h-11 max-sm:w-11 rounded-[10px]
+          bg-surface-800/80 hover:bg-surface-700/80 text-surface-200 border border-surface-700
+          flex items-center justify-center transition-colors cursor-pointer touch-manipulation
+          ${className}
+        `}
+      >
+        <MoreVertical className="w-4.5 h-4.5 stroke-[1.75]" />
+      </button>
+
+      {open && (
+        <div
+          role="menu"
+          className="
+            absolute right-0 mt-1.5 w-56 rounded-2xl
+            bg-surface-900 border border-surface-700/80 shadow-2xl py-1.5 z-50 animate-pop-in
+            divide-y divide-surface-800
+          "
+        >
+          <div className="py-1">
+            {items
+              .filter((item) => !item.danger)
+              .map((item, idx) => (
+                <button
+                  key={idx}
+                  type="button"
+                  disabled={item.disabled}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpen(false);
+                    if (item.onClick) item.onClick();
+                  }}
+                  className={`
+                    w-full min-h-[44px] px-3.5 py-2 text-xs font-semibold
+                    text-surface-200 hover:bg-surface-800/80
+                    flex items-center gap-2.5 cursor-pointer transition-colors text-left
+                    disabled:opacity-40 disabled:cursor-not-allowed
+                  `}
+                >
+                  {item.icon && <item.icon className="w-4 h-4 text-surface-400 stroke-[1.75] shrink-0" />}
+                  <span className="truncate">{item.label}</span>
+                </button>
+              ))}
+          </div>
+
+          {items.some((item) => item.danger) && (
+            <div className="py-1">
+              {items
+                .filter((item) => item.danger)
+                .map((item, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    disabled={item.disabled}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setOpen(false);
+                      if (item.onClick) item.onClick();
+                    }}
+                    className={`
+                      w-full min-h-[44px] px-3.5 py-2 text-xs font-semibold
+                      text-rose-400 hover:bg-rose-500/10
+                      flex items-center gap-2.5 cursor-pointer transition-colors text-left
+                      disabled:opacity-40 disabled:cursor-not-allowed
+                    `}
+                  >
+                    {item.icon && <item.icon className="w-4 h-4 text-rose-400 stroke-[1.75] shrink-0" />}
+                    <span className="truncate">{item.label}</span>
+                  </button>
+                ))}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export function EmptyState({ icon = '📭', title, message, action }) {
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <span className="text-5xl mb-4">{icon}</span>
-      <h3 className="text-lg font-semibold text-surface-200 mb-1">{title}</h3>
-      {message && (
-        <p className="text-sm text-surface-500 max-w-sm">{message}</p>
-      )}
+      <span className="text-5xl mb-4 select-none">{icon}</span>
+      <h3 className="text-lg font-bold text-surface-200 mb-1">{title}</h3>
+      {message && <p className="text-sm text-surface-400 max-w-sm">{message}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>
   );
@@ -17,48 +179,49 @@ export function ErrorState({ message = 'Something went wrong', code, onRetry }) 
   const { t } = useTranslation();
   return (
     <div className="flex flex-col items-center justify-center py-16 px-4 text-center">
-      <div className="w-16 h-16 rounded-full bg-danger-600/10 flex items-center justify-center mb-4">
-        <svg className="w-8 h-8 text-danger-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
-        </svg>
+      <div className="w-14 h-14 rounded-2xl bg-rose-500/10 border border-rose-500/20 flex items-center justify-center mb-4">
+        <AlertTriangle className="w-7 h-7 text-rose-400 stroke-[1.75]" />
       </div>
-      <h3 className="text-lg font-semibold text-danger-500 mb-1">{t('common.error') || 'Error'}</h3>
+      <h3 className="text-lg font-bold text-rose-400 mb-1">{t('common.error') || 'Error'}</h3>
       <p className="text-sm text-surface-400 max-w-sm mb-4">
-        {message}{code ? ` (${code})` : ''}
+        {message}
+        {code ? ` (${code})` : ''}
       </p>
       {onRetry && (
-        <button
-          onClick={onRetry}
-          className="px-4 py-2 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-300 transition-colors cursor-pointer"
-        >
+        <Button variant="secondary" size="md" iconStart={RefreshCw} onClick={onRetry}>
           {t('common.tryAgain') || 'Try Again'}
-        </button>
+        </Button>
       )}
     </div>
   );
 }
 
-export function StatCard({ icon, label, value, color = 'primary' }) {
+export function StatCard({ icon: Icon, label, value, color = 'primary' }) {
   const colors = {
-    primary: 'from-primary-600/20 to-primary-900/10 border-primary-700/30',
-    success: 'from-success-600/20 to-success-600/5 border-success-600/30',
-    warning: 'from-warning-600/20 to-warning-600/5 border-warning-600/30',
-    danger: 'from-danger-600/20 to-danger-600/5 border-danger-600/30',
+    primary: 'from-primary-600/15 to-primary-900/5 border-primary-500/20 text-primary-400',
+    success: 'from-emerald-600/15 to-emerald-900/5 border-emerald-500/20 text-emerald-400',
+    warning: 'from-amber-600/15 to-amber-900/5 border-amber-500/20 text-amber-400',
+    danger: 'from-rose-600/15 to-rose-900/5 border-rose-500/20 text-rose-400',
   };
 
   return (
     <div
       className={`
-        bg-gradient-to-br ${colors[color]}
-        border rounded-2xl p-5
-        transition-transform duration-200 hover:scale-[1.02]
+        bg-gradient-to-br ${colors[color] || colors.primary}
+        border rounded-2xl p-4 sm:p-5 flex flex-col justify-between h-full min-h-[100px]
       `}
     >
-      <div className="flex items-center gap-3 mb-2">
-        <span className="text-2xl">{icon}</span>
-        <span className="text-sm text-surface-400 font-medium">{label}</span>
+      <div className="flex items-center gap-2.5 mb-2">
+        {Icon && typeof Icon === 'function' ? (
+          <Icon className="w-5 h-5 shrink-0 stroke-[1.75]" />
+        ) : typeof Icon === 'string' ? (
+          <span className="text-xl select-none">{Icon}</span>
+        ) : null}
+        <span className="text-xs sm:text-sm text-surface-400 font-medium line-clamp-2 leading-tight">
+          {label}
+        </span>
       </div>
-      <p className="text-3xl font-bold text-surface-100">{value}</p>
+      <p className="text-2xl sm:text-3xl font-bold text-surface-100 tabular-nums">{value}</p>
     </div>
   );
 }
@@ -66,18 +229,18 @@ export function StatCard({ icon, label, value, color = 'primary' }) {
 export function Badge({ children, variant = 'default', className = '' }) {
   const variants = {
     default: 'bg-surface-800 text-surface-300 border border-surface-700',
-    success: 'bg-emerald-950/80 text-emerald-300 border border-emerald-800/80',
-    warning: 'bg-amber-950/80 text-amber-300 border border-amber-800/80',
-    danger: 'bg-rose-950/80 text-rose-300 border border-rose-800/80',
-    primary: 'bg-primary-950/80 text-primary-300 border border-primary-800/80',
+    success: 'bg-emerald-500/15 text-emerald-300 border border-emerald-500/30',
+    warning: 'bg-amber-500/15 text-amber-300 border border-amber-500/30',
+    danger: 'bg-rose-500/15 text-rose-300 border border-rose-500/30',
+    primary: 'bg-primary-500/15 text-primary-300 border border-primary-500/30',
   };
 
   return (
     <span
       className={`
         inline-flex items-center justify-center px-2.5 py-1 rounded-full
-        text-xs font-bold whitespace-nowrap shrink-0 select-none leading-none
-        ${variants[variant]}
+        text-xs font-bold whitespace-nowrap shrink-0 select-none leading-none h-6
+        ${variants[variant] || variants.default}
         ${className}
       `}
     >

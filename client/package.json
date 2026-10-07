@@ -7,6 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "i18n:check": "node src/scripts/check-i18n-keys.js",
+    "check:buttons": "node src/scripts/check-buttons.js",
+    "audit:ui": "node src/scripts/ui-audit.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },

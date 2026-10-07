@@ -36,13 +36,13 @@ export default function EmailResultButton({
 
   if (!hasEmail) {
     return (
-      <span
-        title={t('results.noEmailTooltip')}
-        className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-surface-800/60 text-surface-500 border border-surface-700/60 text-xs font-medium cursor-not-allowed select-none ${className}`}
-      >
-        <Mail className="w-3.5 h-3.5 opacity-50" />
-        <span>{t('students.noEmail')}</span>
-      </span>
+      <StatusChip
+        icon={Mail}
+        label={t('students.noEmail') || 'No email'}
+        variant="neutral"
+        size="md"
+        className={className}
+      />
     );
   }
 
@@ -90,87 +90,82 @@ export default function EmailResultButton({
   };
 
   // Render Pending Undo Toast / State
-  if (pendingUndo) {
+  if (pendingUndo || sending) {
     return (
-      <div className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-semibold animate-pulse ${className}`}>
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        <span>{t('results.sendingEmail')}</span>
-        <button
-          type="button"
-          onClick={handleCancelUndo}
-          className="ms-1 px-2 py-0.5 rounded bg-amber-500/30 hover:bg-amber-500/50 text-amber-100 text-[10px] font-bold uppercase transition-colors"
-        >
-          {t('common.cancel')}
-        </button>
-      </div>
-    );
-  }
-
-  if (sending) {
-    return (
-      <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-500/20 text-teal-300 border border-teal-500/30 text-xs font-semibold ${className}`}>
-        <Loader2 className="w-3.5 h-3.5 animate-spin" />
-        <span>{t('results.sendingEmail')}</span>
-      </span>
+      <Button
+        variant="secondary"
+        size="md"
+        loading={true}
+        fullWidth
+        className={className}
+      >
+        {t('results.sendingEmail') || 'Sending...'}
+      </Button>
     );
   }
 
   // State 1: Outdated grade
   if (isOutdated) {
     return (
-      <button
-        type="button"
+      <Button
+        variant="secondary"
+        size="md"
+        iconStart={RotateCcw}
         onClick={() => handleStartEmailFlow(true)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/40 text-xs font-bold transition-all cursor-pointer shadow-sm ${className}`}
+        fullWidth
+        className={className}
         title="Grade was updated after sending. Click to send updated result."
       >
-        <RotateCcw className="w-3.5 h-3.5 text-amber-400" />
-        <span>{t('results.sendUpdatedResult')}</span>
-      </button>
+        {t('results.sendUpdatedResult') || 'Send Update'}
+      </Button>
     );
   }
 
   // State 2: Successfully Sent
   if (resultEmail.status === 'sent') {
     const sentDateStr = resultEmail.lastSentAt ? formatDateTime(resultEmail.lastSentAt) : '';
-    const tooltipText = `Sent to ${resultEmail.sentToMasked || targetEmail} ${sentDateStr ? 'on ' + sentDateStr : ''}`;
+    const label = `${t('results.emailedStatus') || 'Emailed'}${sentDateStr ? ' · ' + sentDateStr.split(',')[0] : ''}`;
 
     return (
-      <span
-        title={tooltipText}
-        className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-xl bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 text-xs font-semibold select-none ${className}`}
-      >
-        <CheckCheck className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-        <span>{t('results.emailedStatus')}</span>
-      </span>
+      <StatusChip
+        icon={CheckCheck}
+        label={label}
+        variant="success"
+        size="md"
+        className={className}
+      />
     );
   }
 
   // State 3: Failed previous send
   if (resultEmail.status === 'failed' || errorMessage) {
     return (
-      <button
-        type="button"
+      <Button
+        variant="danger-outline"
+        size="md"
+        iconStart={AlertCircle}
         onClick={() => handleStartEmailFlow(true)}
-        className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 text-xs font-bold transition-all cursor-pointer ${className}`}
+        fullWidth
+        className={className}
         title={errorMessage || resultEmail.lastErrorCode || 'Failed to send email. Click to retry.'}
       >
-        <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
-        <span>{t('common.retry')}</span>
-      </button>
+        {t('common.retry') || 'Retry'}
+      </Button>
     );
   }
 
   // State 4: Default Not Sent Button
   return (
-    <button
-      type="button"
+    <Button
+      variant="secondary"
+      size="md"
+      iconStart={Mail}
       onClick={() => handleStartEmailFlow(false)}
-      className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 text-xs font-bold transition-all cursor-pointer shadow-sm ${className}`}
+      fullWidth
+      className={className}
       title={t('results.emailResult')}
     >
-      <Mail className="w-3.5 h-3.5 text-teal-400 shrink-0" />
-      <span>{t('results.emailResult')}</span>
-    </button>
+      {t('results.emailResult') || 'Email result'}
+    </Button>
   );
 }

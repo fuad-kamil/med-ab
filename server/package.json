@@ -8,6 +8,7 @@
     "start": "node index.js",
     "test": "vitest run",
     "seed": "node src/scripts/seed.js",
+    "seed:demo": "node src/scripts/seed-demo.js",
     "db:indexes": "node src/scripts/sync-indexes.js",
     "migrate:categories": "node src/scripts/migrate-categories.js",
     "migrate:snapshots": "node src/scripts/migrate-snapshots.js"

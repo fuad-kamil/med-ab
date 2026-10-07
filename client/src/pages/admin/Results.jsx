@@ -5,7 +5,7 @@ import Button from '../../components/Button';
 import Modal from '../../components/Modal';
 import Spinner from '../../components/Spinner';
 import Toast from '../../components/Toast';
-import { EmptyState, ErrorState, Badge, StatCard } from '../../components/Common';
+import { EmptyState, ErrorState, Badge, StatCard, ActionRow, MenuButton, StatusChip } from '../../components/Common';
 import EmailResultButton from '../../components/EmailResultButton';
 import {
   BarChart3,
@@ -535,21 +535,21 @@ export default function Results() {
                 </div>
               </div>
               <div>
-                {!examDetails.exam?.isDeleted && (
-                  <button
-                    type="button"
+                {!examDetails.exam?.isDeleted && examDetails.exam?.status === 'open' && (
+                  <Button
+                    variant="secondary"
+                    size="md"
+                    iconStart={Clock}
                     onClick={() => handleAddExtraTime(selectedExamId, examDetails.exam?.title)}
                     title={t('exams.addFiveMinTooltip')}
-                    className="h-[40px] px-3.5 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-300 border border-amber-500/30 hover:border-amber-500/60 font-bold text-xs flex items-center gap-1.5 transition-all shadow-sm active:scale-95 cursor-pointer"
                   >
-                    <Clock className="w-3.5 h-3.5 text-amber-400" />
-                    <span>5+</span>
-                  </button>
+                    {t('results.extendTime') || 'Extend time'}
+                  </Button>
                 )}
               </div>
             </div>
 
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-4 pt-3 border-t border-surface-800/80 text-xs sm:text-sm">
+            <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4 pt-3 border-t border-surface-800/80 text-xs sm:text-sm">
               <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
                 <span className="text-surface-400 block text-[11px] font-medium">{t('results.totalSubmissions')}</span>
                 <span className="text-surface-100 font-bold text-base sm:text-lg">{examDetails.results?.length || 0}</span>
@@ -561,12 +561,6 @@ export default function Results() {
               <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
                 <span className="text-surface-400 block text-[11px] font-medium">{t('results.duration')}</span>
                 <span className="text-surface-100 font-bold text-base sm:text-lg">{t('common.minutes_other', { count: examDetails.exam?.durationMinutes || 0 })}</span>
-              </div>
-              <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
-                <span className="text-surface-400 block text-[11px] font-medium">{t('results.status')}</span>
-                <span className={`font-bold text-base sm:text-lg ${examDetails.exam?.status === 'open' ? 'text-emerald-400' : 'text-surface-400'}`}>
-                  {t(`common.${examDetails.exam?.status}`).toUpperCase()}
-                </span>
               </div>
             </div>
           </div>
@@ -680,63 +674,58 @@ export default function Results() {
                             {att.submittedAt ? new Date(att.submittedAt).toLocaleString() : t('results.notSubmitted')}
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <div className="flex items-center justify-end gap-2">
-                              {att.attemptId && (
-                                <>
-                                  <button
-                                    onClick={() => openAttemptDetail(att.attemptId)}
-                                    className="px-3 py-1.5 rounded-xl bg-primary-600/20 hover:bg-primary-600/30 text-primary-300 border border-primary-500/30 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-                                    title={t('results.viewGradeAnswers')}
-                                  >
-                                    <Eye className="w-3.5 h-3.5" />
-                                    <span>{t('results.grade')}</span>
-                                  </button>
+                            {att.attemptId && (
+                              <ActionRow>
+                                <Button
+                                  variant="primary"
+                                  size="sm"
+                                  iconStart={Eye}
+                                  onClick={() => openAttemptDetail(att.attemptId)}
+                                  title={t('results.viewGradeAnswers')}
+                                >
+                                  {att.needsGrading ? t('results.grade') : t('results.view')}
+                                </Button>
 
-                                  <EmailResultButton
-                                    attempt={att}
-                                    studentEmail={att.studentEmail}
-                                    onSentSuccess={(updatedEmail) => {
-                                      setExamDetails((prev) =>
-                                        prev
-                                          ? {
-                                              ...prev,
-                                              results: prev.results.map((r) =>
-                                                r.attemptId === att.attemptId ? { ...r, resultEmail: updatedEmail } : r
-                                              ),
-                                            }
-                                          : prev
-                                      );
-                                    }}
-                                  />
+                                <EmailResultButton
+                                  attempt={att}
+                                  studentEmail={att.studentEmail}
+                                  onSentSuccess={(updatedEmail) => {
+                                    setExamDetails((prev) =>
+                                      prev
+                                        ? {
+                                            ...prev,
+                                            results: prev.results.map((r) =>
+                                              r.attemptId === att.attemptId ? { ...r, resultEmail: updatedEmail } : r
+                                            ),
+                                          }
+                                        : prev
+                                    );
+                                  }}
+                                />
 
-                                  {!att.needsGrading && att.status !== 'not_started' && (
-                                    <button
-                                      onClick={() => handleDownloadAttemptDocx(att.attemptId, att.studentName)}
-                                      className="px-3 py-1.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer"
-                                      title={t('results.downloadReportDocx')}
-                                    >
-                                      <FileText className="w-3.5 h-3.5 text-teal-400" />
-                                      <span>.docx</span>
-                                    </button>
-                                  )}
-                                  <button
-                                    onClick={() =>
-                                      setResettingAttempt({
-                                        id: att.attemptId,
-                                        studentName: att.studentName,
-                                        examTitle: examDetails.exam?.title,
-                                      })
-                                    }
-                                    disabled={examDetails.exam?.isDeleted}
-                                    className="px-3 py-1.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 transition-colors flex items-center gap-1.5 text-xs font-semibold cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                                    title={examDetails.exam?.isDeleted ? t('results.cannotRetakeDeletedTooltip') : t('results.allowRetakeTooltip')}
-                                  >
-                                    <RotateCcw className="w-3.5 h-3.5" />
-                                    <span>{t('results.retake')}</span>
-                                  </button>
-                                </>
-                              )}
-                            </div>
+                                <MenuButton
+                                  items={[
+                                    !att.needsGrading && att.status !== 'not_started' && {
+                                      label: t('results.downloadWord') || 'Word document',
+                                      icon: FileText,
+                                      onClick: () => handleDownloadAttemptDocx(att.attemptId, att.studentName),
+                                    },
+                                    {
+                                      label: t('results.retake') || 'Allow retake',
+                                      icon: RotateCcw,
+                                      danger: true,
+                                      disabled: examDetails.exam?.isDeleted,
+                                      onClick: () =>
+                                        setResettingAttempt({
+                                          id: att.attemptId,
+                                          studentName: att.studentName,
+                                          examTitle: examDetails.exam?.title,
+                                        }),
+                                    },
+                                  ].filter(Boolean)}
+                                />
+                              </ActionRow>
+                            )}
                           </td>
                         </tr>
                       ))}
@@ -795,14 +784,16 @@ export default function Results() {
                       </div>
 
                       {att.attemptId && (
-                        <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                          <button
+                        <ActionRow>
+                          <Button
+                            variant="primary"
+                            size="md"
+                            fullWidth
+                            iconStart={Eye}
                             onClick={() => openAttemptDetail(att.attemptId)}
-                            className="py-2 px-2.5 rounded-xl bg-primary-600/20 hover:bg-primary-600/30 text-primary-300 border border-primary-500/30 text-[11px] font-semibold flex items-center justify-center gap-1 min-h-[44px] cursor-pointer transition-colors shadow-sm"
                           >
-                            <Eye className="w-3.5 h-3.5" />
-                            <span>{t('results.grade')}</span>
-                          </button>
+                            {att.needsGrading ? t('results.grade') : t('results.view')}
+                          </Button>
 
                           <EmailResultButton
                             attempt={att}
@@ -821,30 +812,28 @@ export default function Results() {
                             }}
                           />
 
-                          {!att.needsGrading && att.status !== 'not_started' && (
-                            <button
-                              onClick={() => handleDownloadAttemptDocx(att.attemptId, att.studentName)}
-                              className="py-2 px-2.5 rounded-xl bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 text-[11px] font-semibold flex items-center justify-center gap-1 min-h-[44px] cursor-pointer transition-colors shadow-sm"
-                            >
-                              <FileText className="w-3.5 h-3.5 text-teal-400" />
-                              <span>.docx</span>
-                            </button>
-                          )}
-                          <button
-                            onClick={() =>
-                              setResettingAttempt({
-                                id: att.attemptId,
-                                studentName: att.studentName,
-                                examTitle: examDetails.exam?.title,
-                              })
-                            }
-                            disabled={examDetails.exam?.isDeleted}
-                            className="py-2 px-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-[11px] font-semibold flex items-center justify-center gap-1 min-h-[44px] cursor-pointer transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
-                          >
-                            <RotateCcw className="w-3.5 h-3.5" />
-                            <span>{t('results.retake')}</span>
-                          </button>
-                        </div>
+                          <MenuButton
+                            items={[
+                              !att.needsGrading && att.status !== 'not_started' && {
+                                label: t('results.downloadWord') || 'Word document',
+                                icon: FileText,
+                                onClick: () => handleDownloadAttemptDocx(att.attemptId, att.studentName),
+                              },
+                              {
+                                label: t('results.retake') || 'Allow retake',
+                                icon: RotateCcw,
+                                danger: true,
+                                disabled: examDetails.exam?.isDeleted,
+                                onClick: () =>
+                                  setResettingAttempt({
+                                    id: att.attemptId,
+                                    studentName: att.studentName,
+                                    examTitle: examDetails.exam?.title,
+                                  }),
+                              },
+                            ].filter(Boolean)}
+                          />
+                        </ActionRow>
                       )}
                     </div>
                   ))}

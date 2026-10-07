@@ -6,7 +6,7 @@ import Button from '../../components/Button';
 import Input from '../../components/Input';
 import Modal, { ConfirmDialog } from '../../components/Modal';
 import Spinner, { LoadingScreen } from '../../components/Spinner';
-import { EmptyState, ErrorState, Badge } from '../../components/Common';
+import { EmptyState, ErrorState, Badge, ActionRow, MenuButton, StatusChip } from '../../components/Common';
 import Toast from '../../components/Toast';
 import { downloadExcelFile } from '../../utils/excelUtils';
 import StudentProfileModal from '../../components/admin/StudentProfileModal';
@@ -1117,28 +1117,64 @@ export default function Students() {
                   </div>
 
                   {/* Mobile Card Action Buttons */}
-                  <div className="flex items-center gap-2 pt-2 border-t border-surface-200/60 dark:border-surface-800" onClick={(e) => e.stopPropagation()}>
-                    <button
-                      onClick={() => setSelectedStudentDetailId(student._id)}
-                      className="flex-1 py-2 px-3 rounded-xl bg-surface-200 dark:bg-surface-800 hover:bg-surface-300 dark:hover:bg-surface-700 text-surface-800 dark:text-surface-200 font-semibold text-xs transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                    >
-                      <Eye className="w-3.5 h-3.5 stroke-[1.75]" />
-                      <span>{t('students.viewProfile')}</span>
-                    </button>
+                  <div className="pt-2 border-t border-surface-200/60 dark:border-surface-800" onClick={(e) => e.stopPropagation()}>
+                    <ActionRow>
+                      <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        iconStart={Eye}
+                        onClick={() => setSelectedStudentDetailId(student._id)}
+                      >
+                        {t('students.viewProfile') || 'View'}
+                      </Button>
 
-                    <button
-                      onClick={() => {
-                        setEmailModalConfig({
-                          targetType: 'selected',
-                          selectedStudentIds: [student._id],
-                          recipientsCount: 1,
-                        });
-                      }}
-                      className="py-2 px-3 rounded-xl bg-primary-600 hover:bg-primary-700 text-white font-semibold text-xs transition-colors flex items-center justify-center gap-1 cursor-pointer"
-                    >
-                      <Mail className="w-3.5 h-3.5 stroke-[1.75]" />
-                      <span>{t('students.email')}</span>
-                    </button>
+                      {student.email ? (
+                        <Button
+                          variant="secondary"
+                          size="md"
+                          fullWidth
+                          iconStart={Mail}
+                          onClick={() => {
+                            setEmailModalConfig({
+                              targetType: 'selected',
+                              selectedStudentIds: [student._id],
+                              recipientsCount: 1,
+                            });
+                          }}
+                        >
+                          {t('students.email') || 'Email'}
+                        </Button>
+                      ) : (
+                        <StatusChip
+                          variant="neutral"
+                          size="md"
+                          icon={AlertCircle}
+                          label={t('students.noEmailSet') || 'No email'}
+                        />
+                      )}
+
+                      <MenuButton
+                        items={[
+                          {
+                            label: t('students.editStudent') || 'Edit',
+                            icon: Edit3,
+                            onClick: () => handleOpenModal(student),
+                          },
+                          {
+                            label: student.isActive ? (t('students.deactivate') || 'Deactivate') : (t('students.activate') || 'Activate'),
+                            icon: student.isActive ? UserX : UserCheck,
+                            onClick: () => handleToggleStatus(student),
+                          },
+                          {
+                            label: t('common.delete') || 'Delete',
+                            icon: Trash2,
+                            danger: true,
+                            onClick: () => setDeleteTarget(student),
+                          },
+                        ]}
+                      />
+                    </ActionRow>
                   </div>
                 </div>
               );

@@ -6,7 +6,7 @@ import api from '../../api/client';
 import Button from '../../components/Button';
 import { Modal, ConfirmDialog } from '../../components/Modal';
 import Spinner, { LoadingScreen } from '../../components/Spinner';
-import { ErrorState, Badge } from '../../components/Common';
+import { ErrorState, Badge, ActionRow, MenuButton, StatusChip } from '../../components/Common';
 import Toast from '../../components/Toast';
 import { formatDate, formatDurationMinutes } from '../../utils/formatters';
 import { normalizeForSearch, matchSearchQuery } from '../../utils/searchUtils';
@@ -1310,76 +1310,81 @@ export default function ExamList() {
                   </div>
 
                   {/* Right Action Block (100% responsive on mobile, tablet & desktop) */}
-                  <div
-                    className="grid grid-cols-2 sm:flex sm:items-center gap-2 w-full lg:w-auto pt-3 lg:pt-0 border-t lg:border-t-0 border-surface-800"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {/* Copy Link Button (Visible ONLY for Open exams) */}
-                    {isOpen && (
-                      <button
-                        type="button"
-                        onClick={() => handleCopyLink(exam.accessToken)}
-                        className="h-10 sm:h-10 px-2.5 sm:px-3.5 rounded-xl bg-surface-800/80 hover:bg-surface-800 border border-surface-700 text-surface-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[40px]"
-                        title={t('exams.copyLinkSuccess')}
+                  <div className="pt-3 lg:pt-0 border-t lg:border-t-0 border-surface-800 w-full lg:w-auto" onClick={(e) => e.stopPropagation()}>
+                    <ActionRow>
+                      <Button
+                        variant="primary"
+                        size="md"
+                        fullWidth
+                        iconStart={Edit3}
+                        onClick={() => navigate(`/admin/exams/${exam._id}`)}
                       >
-                        <LinkIcon className="w-3.5 h-3.5 text-primary-400 shrink-0" />
-                        <span className="hidden sm:inline">{t('exams.copyLinkSuccess')?.replace('!', '') || 'Copy link'}</span>
-                        <span className="inline sm:hidden">{t('common.copy') || 'Copy'}</span>
-                      </button>
-                    )}
+                        {t('common.edit') || 'Edit'}
+                      </Button>
 
-                    {/* Edit Exam Button */}
-                    <button
-                      type="button"
-                      onClick={() => navigate(`/admin/exams/${exam._id}`)}
-                      className="h-10 sm:h-10 px-2.5 sm:px-3.5 rounded-xl bg-surface-800/80 hover:bg-surface-800 border border-surface-700 text-surface-200 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer min-h-[40px]"
-                      title={t('common.edit')}
-                    >
-                      <Edit3 className="w-3.5 h-3.5 text-surface-300 shrink-0" />
-                      <span>{t('common.edit')}</span>
-                    </button>
+                      {isOpen ? (
+                        <Button
+                          variant="secondary"
+                          size="md"
+                          fullWidth
+                          iconStart={LinkIcon}
+                          onClick={() => handleCopyLink(exam.accessToken)}
+                        >
+                          {t('common.copy') || 'Copy link'}
+                        </Button>
+                      ) : (
+                        <Button
+                          variant="secondary"
+                          size="md"
+                          fullWidth
+                          iconStart={isOpen ? CheckCircle2 : Lock}
+                          onClick={() => handleToggleStatus(exam)}
+                        >
+                          {isOpen ? (t('exams.openStatus') || 'Open') : (t('exams.closedStatus') || 'Closed')}
+                        </Button>
+                      )}
 
-                    {/* Link State Control Switch */}
-                    <button
-                      type="button"
-                      role="switch"
-                      aria-checked={isOpen}
-                      onClick={() => handleToggleStatus(exam)}
-                      className={`h-10 sm:h-10 px-2.5 sm:px-3.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[40px] ${
-                        isOpen
-                          ? 'bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800'
-                          : 'bg-surface-800/60 hover:bg-surface-800 text-surface-300 border border-surface-700'
-                      }`}
-                      title={isOpen ? t('exams.closedStatus') : t('exams.openStatus')}
-                    >
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${isOpen ? 'bg-emerald-400' : 'bg-surface-400'}`} />
-                      <span>{isOpen ? t('exams.openStatus') : t('exams.closedStatus')}</span>
-                    </button>
-
-                    {/* Extend Time Button (Visible when exam is open & students in progress) */}
-                    {isOpen && inProgress > 0 && (
-                      <button
-                        type="button"
-                        onClick={() => setExtendTimeTarget(exam)}
-                        title={t('exams.extendTimeDescription')}
-                        className="h-10 sm:h-10 px-2.5 sm:px-3.5 rounded-xl bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer min-h-[40px]"
-                      >
-                        <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <span className="hidden sm:inline">{t('exams.extendTime')}</span>
-                        <span className="inline sm:hidden">+5m</span>
-                      </button>
-                    )}
-
-                    {/* "⋯" Dropdown Menu */}
-                    <div className="col-span-2 sm:col-span-1 flex justify-end items-center">
-                      <ExamCardMenu
-                        exam={exam}
-                        onDuplicate={() => handleDuplicate(exam._id)}
-                        onDownloadWord={() => handleDownloadWord(exam)}
-                        onRegenerateLink={() => handleRegenerateLink(exam._id)}
-                        onDelete={() => setDeleteTarget(exam)}
+                      <MenuButton
+                        items={[
+                          isOpen && inProgress > 0 && {
+                            label: t('exams.extendTime') || 'Extend time',
+                            icon: Clock,
+                            onClick: () => setExtendTimeTarget(exam),
+                          },
+                          isOpen && {
+                            label: t('exams.closedStatus') || 'Close exam',
+                            icon: Lock,
+                            onClick: () => handleToggleStatus(exam),
+                          },
+                          !isOpen && {
+                            label: t('exams.openStatus') || 'Open exam',
+                            icon: CheckCircle2,
+                            onClick: () => handleToggleStatus(exam),
+                          },
+                          {
+                            label: t('exams.duplicate') || 'Duplicate',
+                            icon: Copy,
+                            onClick: () => handleDuplicate(exam._id),
+                          },
+                          {
+                            label: t('exams.downloadWord') || 'Word document',
+                            icon: Download,
+                            onClick: () => handleDownloadWord(exam),
+                          },
+                          {
+                            label: t('exams.regenerateLink') || 'Regenerate link',
+                            icon: RefreshCw,
+                            onClick: () => handleRegenerateLink(exam._id),
+                          },
+                          {
+                            label: t('common.delete') || 'Delete',
+                            icon: Trash2,
+                            danger: true,
+                            onClick: () => setDeleteTarget(exam),
+                          },
+                        ].filter(Boolean)}
                       />
-                    </div>
+                    </ActionRow>
                   </div>
                 </div>
               </div>
