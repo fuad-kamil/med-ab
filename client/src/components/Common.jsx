@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { useTranslation } from 'react-i18next';
 import { MoreVertical, AlertTriangle, RefreshCw } from 'lucide-react';
 import Button from './Button';
@@ -64,77 +65,93 @@ export function ActionRow({ children, className = '', ...props }) {
 
 export function MenuButton({ items = [], label = 'More options', className = '' }) {
   const [open, setOpen] = useState(false);
+  const [coords, setCoords] = useState({ top: 0, left: 0 });
+  const buttonRef = useRef(null);
   const menuRef = useRef(null);
 
+  const toggleMenu = (e) => {
+    e.stopPropagation();
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect();
+      const menuWidth = 224; // w-56
+      const left = Math.max(12, Math.min(window.innerWidth - menuWidth - 12, rect.right - menuWidth));
+      const top = rect.bottom + 6;
+      setCoords({ top, left });
+    }
+    setOpen((prev) => !prev);
+  };
+
   useEffect(() => {
+    if (!open) return;
+
     function handleClickOutside(e) {
-      if (menuRef.current && !menuRef.current.contains(e.target)) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
+        buttonRef.current &&
+        !buttonRef.current.contains(e.target)
+      ) {
         setOpen(false);
       }
     }
+
+    function handleScrollOrResize() {
+      if (buttonRef.current) {
+        const rect = buttonRef.current.getBoundingClientRect();
+        const menuWidth = 224;
+        const left = Math.max(12, Math.min(window.innerWidth - menuWidth - 12, rect.right - menuWidth));
+        const top = rect.bottom + 6;
+        setCoords({ top, left });
+      }
+    }
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
+    window.addEventListener('scroll', handleScrollOrResize, true);
+    window.addEventListener('resize', handleScrollOrResize);
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('scroll', handleScrollOrResize, true);
+      window.removeEventListener('resize', handleScrollOrResize);
+    };
+  }, [open]);
 
   if (!items || items.length === 0) return null;
 
   return (
-    <div className="relative inline-block" ref={menuRef}>
+    <>
       <button
+        ref={buttonRef}
         type="button"
-        onClick={() => setOpen((prev) => !prev)}
+        onClick={toggleMenu}
         aria-label={label}
         title={label}
         aria-expanded={open}
         className={`
           h-10 w-10 max-sm:h-11 max-sm:w-11 rounded-[10px]
           bg-surface-800/80 hover:bg-surface-700/80 text-surface-200 border border-surface-700
-          flex items-center justify-center transition-colors cursor-pointer touch-manipulation
+          flex items-center justify-center transition-colors cursor-pointer touch-manipulation shrink-0
           ${className}
         `}
       >
         <MoreVertical className="w-4.5 h-4.5 stroke-[1.75]" />
       </button>
 
-      {open && (
-        <div
-          role="menu"
-          className="
-            absolute right-0 mt-1.5 w-56 rounded-2xl
-            bg-surface-900 border border-surface-700/80 shadow-2xl py-1.5 z-50 animate-pop-in
-            divide-y divide-surface-800
-          "
-        >
-          <div className="py-1">
-            {items
-              .filter((item) => !item.danger)
-              .map((item, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  disabled={item.disabled}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpen(false);
-                    if (item.onClick) item.onClick();
-                  }}
-                  className={`
-                    w-full min-h-[44px] px-3.5 py-2 text-xs font-semibold
-                    text-surface-200 hover:bg-surface-800/80
-                    flex items-center gap-2.5 cursor-pointer transition-colors text-left
-                    disabled:opacity-40 disabled:cursor-not-allowed
-                  `}
-                >
-                  {item.icon && <item.icon className="w-4 h-4 text-surface-400 stroke-[1.75] shrink-0" />}
-                  <span className="truncate">{item.label}</span>
-                </button>
-              ))}
-          </div>
-
-          {items.some((item) => item.danger) && (
+      {open &&
+        createPortal(
+          <div
+            ref={menuRef}
+            role="menu"
+            style={{ top: `${coords.top}px`, left: `${coords.left}px` }}
+            className="
+              fixed w-56 rounded-2xl
+              bg-surface-900 border border-surface-700/80 shadow-2xl py-1.5 z-[9999] animate-pop-in
+              divide-y divide-surface-800 text-surface-200
+            "
+          >
             <div className="py-1">
               {items
-                .filter((item) => item.danger)
+                .filter((item) => !item.danger)
                 .map((item, idx) => (
                   <button
                     key={idx}
@@ -147,20 +164,48 @@ export function MenuButton({ items = [], label = 'More options', className = '' 
                     }}
                     className={`
                       w-full min-h-[44px] px-3.5 py-2 text-xs font-semibold
-                      text-rose-400 hover:bg-rose-500/10
+                      text-surface-200 hover:bg-surface-800/80
                       flex items-center gap-2.5 cursor-pointer transition-colors text-left
                       disabled:opacity-40 disabled:cursor-not-allowed
                     `}
                   >
-                    {item.icon && <item.icon className="w-4 h-4 text-rose-400 stroke-[1.75] shrink-0" />}
+                    {item.icon && <item.icon className="w-4 h-4 text-surface-400 stroke-[1.75] shrink-0" />}
                     <span className="truncate">{item.label}</span>
                   </button>
                 ))}
             </div>
-          )}
-        </div>
-      )}
-    </div>
+
+            {items.some((item) => item.danger) && (
+              <div className="py-1">
+                {items
+                  .filter((item) => item.danger)
+                  .map((item, idx) => (
+                    <button
+                      key={idx}
+                      type="button"
+                      disabled={item.disabled}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setOpen(false);
+                        if (item.onClick) item.onClick();
+                      }}
+                      className={`
+                        w-full min-h-[44px] px-3.5 py-2 text-xs font-semibold
+                        text-rose-400 hover:bg-rose-500/10
+                        flex items-center gap-2.5 cursor-pointer transition-colors text-left
+                        disabled:opacity-40 disabled:cursor-not-allowed
+                      `}
+                    >
+                      {item.icon && <item.icon className="w-4 h-4 text-rose-400 stroke-[1.75] shrink-0" />}
+                      <span className="truncate">{item.label}</span>
+                    </button>
+                  ))}
+              </div>
+            )}
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
 
