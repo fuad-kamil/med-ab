@@ -1,5 +1,6 @@
 import nodemailer from 'nodemailer';
 import { env } from '../config/env.js';
+import { docFonts, detectScript } from '../utils/docFonts.js';
 
 /**
   Creates a Nodemailer transporter based on env vars or supplied credentials.
@@ -58,9 +59,12 @@ export async function sendAnnouncementEmail({
     contentType: file.mimetype,
   }));
 
+  const script = detectScript(message || subject);
+  const emailStyle = docFonts.email[script] || docFonts.email.en;
+
   // Convert plain text to simple clean HTML template
   const htmlBody = `
-    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; rounded: 12px; background-color: #ffffff;">
+    <div style="${emailStyle} max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff;">
       <div style="background-color: #0d9488; padding: 16px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
         <h2 style="color: #ffffff; margin: 0; font-size: 20px;">Medresa Exam Portal</h2>
         <p style="color: #ccfbf1; margin: 4px 0 0 0; font-size: 13px;">Announcement from Ustaz</p>
@@ -174,8 +178,10 @@ export async function sendResultEmail({
     attachmentNotice = 'Attached to this email is your official detailed result report (.docx file).';
   }
 
+  const resultEmailStyle = docFonts.email[language] || docFonts.email.en;
+
   const htmlBody = `
-    <div dir="${dir}" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; text-align: ${isRtl ? 'right' : 'left'};">
+    <div dir="${dir}" style="${resultEmailStyle} max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; text-align: ${isRtl ? 'right' : 'left'};">
       <div style="background-color: #0d9488; padding: 18px 20px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
         <h2 style="color: #ffffff; margin: 0; font-size: 20px;">Medresa Exam Portal</h2>
         <p style="color: #ccfbf1; margin: 4px 0 0 0; font-size: 13px;">${bodyTitle}</p>

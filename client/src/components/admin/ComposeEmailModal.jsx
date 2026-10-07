@@ -200,7 +200,7 @@ export default function ComposeEmailModal({
                 <Users className="w-4 h-4 text-primary-500" />
                 <span>{t('emailModal.selectRecipients', { count: activeRecipientsCount }) || `Select Recipients (${activeRecipientsCount} student(s) with valid email)`}</span>
               </label>
-              <span className="text-[11px] text-surface-400">{t('emailModal.directNotice') || 'Zero DB storage • Direct via Email'}</span>
+              <span className="text-xs text-surface-400">{t('emailModal.directNotice') || 'Zero DB storage • Direct via Email'}</span>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
@@ -301,10 +301,10 @@ export default function ComposeEmailModal({
                               className="rounded border-surface-300 text-primary-600 focus:ring-primary-500 disabled:opacity-40"
                             />
                             <span className="truncate" dir="auto">{st.fullName}</span>
-                            <span className="font-mono text-[11px] text-surface-400">({st.studentId})</span>
+                            <span className="font-mono text-xs text-surface-400">({st.studentId})</span>
                           </div>
                           <span
-                            className={`text-[11px] truncate max-w-[170px] ${
+                            className={`text-xs truncate max-w-[170px] ${
                               hasEmail
                                 ? 'text-surface-500 dark:text-surface-400 font-mono'
                                 : 'text-rose-500 dark:text-rose-400 font-medium italic'
@@ -397,7 +397,7 @@ export default function ComposeEmailModal({
                       <span className="truncate font-medium text-surface-800 dark:text-surface-200">
                         {file.name}
                       </span>
-                      <span className="text-[11px] text-surface-400 shrink-0">
+                      <span className="text-xs text-surface-400 shrink-0">
                         ({(file.size / 1024 / 1024).toFixed(2)} MB)
                       </span>
                     </div>

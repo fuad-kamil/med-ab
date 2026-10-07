@@ -147,12 +147,12 @@ export default function StudentLogin() {
           <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-600/20 border border-teal-500/30 text-teal-400 shadow-lg shadow-teal-900/20 mb-1">
             <GraduationCap className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-surface-100">
-            {t('common.appName')}
-          </h1>
-          <div className="font-arabic text-xl sm:text-2xl text-teal-400 text-center dir-rtl py-1 select-none" dir="rtl">
+          <div className="font-quran text-[34px] text-teal-400 text-center leading-[2] py-1 select-none" dir="rtl">
             بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
           </div>
+          <h1 className="font-sans text-2xl sm:text-3xl font-bold text-surface-100">
+            {t('common.appName')}
+          </h1>
           <p className="text-xs text-surface-400">
             {t('exam.credentialsInstructions')}
           </p>
@@ -167,14 +167,14 @@ export default function StudentLogin() {
             </div>
           ) : examMeta ? (
             <div className="p-4 bg-teal-950/40 border border-teal-800/50 rounded-xl space-y-2">
-              <div className="text-xs font-semibold text-teal-400 uppercase tracking-wider">
+              <div className="font-content text-sm font-semibold text-teal-400">
                 {t('exam.targetExam')}
               </div>
-              <div className="text-base font-bold text-surface-100">
+              <div className="font-content text-base font-bold text-surface-100">
                 {examMeta.title}
               </div>
               {examMeta.description && (
-                <div className="text-xs text-surface-300 bg-surface-900/60 p-2.5 rounded-lg border border-teal-900/40 leading-relaxed whitespace-pre-wrap">
+                <div className="font-content text-xs text-surface-300 bg-surface-900/60 p-2.5 rounded-lg border border-teal-900/40 leading-relaxed whitespace-pre-wrap">
                   {examMeta.description}
                 </div>
               )}
@@ -211,7 +211,7 @@ export default function StudentLogin() {
           <form id="student-exam-login-form" onSubmit={handleSubmit} className="space-y-4">
             {/* Student ID Field */}
             <div className="space-y-1">
-              <label htmlFor="student_id_field" className="block text-xs font-semibold text-surface-300 uppercase tracking-wider">
+              <label htmlFor="student_id_field" className="block text-sm font-medium text-surface-300">
                 {t('students.studentId')}
               </label>
               <input
@@ -224,13 +224,14 @@ export default function StudentLogin() {
                 required
                 autoFocus
                 autoComplete="off"
-                className="w-full px-3.5 py-2.5 text-base rounded-xl bg-surface-900 border border-surface-700 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px]"
+                dir="ltr"
+                className="w-full px-3.5 py-2.5 text-base font-mono rounded-xl bg-surface-900 border border-surface-700 text-surface-100 placeholder:text-surface-500 focus:outline-none focus:ring-2 focus:ring-teal-500 min-h-[44px]"
               />
             </div>
 
             {/* Password Field */}
             <div className="space-y-1">
-              <label htmlFor="student_pass_field" className="block text-xs font-semibold text-surface-300 uppercase tracking-wider">
+              <label htmlFor="student_pass_field" className="block text-sm font-medium text-surface-300">
                 {t('students.password')}
               </label>
               <div className="relative">

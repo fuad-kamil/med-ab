@@ -62,6 +62,24 @@ i18n
     },
   });
 
+export async function preloadFontForLang(lng) {
+  if (typeof document === 'undefined' || !document.fonts?.load) return;
+  try {
+    if (lng === 'ar') {
+      await Promise.all([
+        document.fonts.load('1em "Noto Sans Arabic Variable"'),
+        document.fonts.load('1em "Noto Naskh Arabic Variable"'),
+      ]);
+    } else if (lng === 'am') {
+      await document.fonts.load('1em "Noto Sans Ethiopic"');
+    } else {
+      await document.fonts.load('1em "Inter Variable"');
+    }
+  } catch (e) {
+    // Ignore if browser doesn't support font loading or font not ready
+  }
+}
+
 function syncDocumentAttributes(lng) {
   if (typeof document === 'undefined') return;
   const currentLang = lng || i18n.language || 'en';
@@ -75,6 +93,8 @@ function syncDocumentAttributes(lng) {
   } else {
     document.documentElement.classList.remove('rtl-active');
   }
+
+  preloadFontForLang(currentLang);
 }
 
 // Synchronize html lang & dir attributes

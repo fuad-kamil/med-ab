@@ -259,7 +259,7 @@ export default function Categories() {
               autoFocus
             />
             <div>
-              <label className="block text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">
+              <label className="block text-sm font-medium text-surface-300 mb-2">
                 {t('categories.description')} ({t('common.optional')})
               </label>
               <textarea
@@ -302,7 +302,7 @@ export default function Categories() {
               required
             />
             <div>
-              <label className="block text-xs font-semibold text-surface-400 uppercase tracking-wider mb-2">
+              <label className="block text-sm font-medium text-surface-300 mb-2">
                 {t('categories.description')}
               </label>
               <textarea

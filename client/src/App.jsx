@@ -17,6 +17,7 @@ const StudentLogin = lazy(() => import('./pages/student/StudentLogin'));
 const TakeExam = lazy(() => import('./pages/student/TakeExam'));
 const ExamResult = lazy(() => import('./pages/student/ExamResult'));
 const NotFound = lazy(() => import('./pages/NotFound'));
+const TypographySpecimen = lazy(() => import('./pages/dev/TypographySpecimen'));
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated, isAdmin } = useAuth();
@@ -61,6 +62,9 @@ function AppRoutes() {
 
         {/* Default redirect */}
         <Route path="/" element={<Navigate to="/admin" replace />} />
+
+        {/* Dev typography specimen */}
+        <Route path="/dev/typography" element={<TypographySpecimen />} />
 
         {/* 404 */}
         <Route path="*" element={<NotFound />} />

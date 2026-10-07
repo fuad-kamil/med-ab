@@ -79,7 +79,7 @@ export default function LanguageSwitcher({ variant = 'dropdown', onSelect }) {
                   {lang.nativeName}
                 </span>
                 {lang.isRtl && (
-                  <span className="px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wider bg-surface-800 text-surface-400 border border-surface-700">
+                  <span className="px-1.5 py-0.5 rounded text-xs font-semibold bg-surface-800 text-surface-400 border border-surface-700">
                     RTL
                   </span>
                 )}
@@ -171,7 +171,7 @@ export default function LanguageSwitcher({ variant = 'dropdown', onSelect }) {
                         {lang.nativeName}
                       </span>
                       {lang.isRtl && (
-                        <span className="px-1 py-0.5 rounded text-[9px] font-semibold bg-surface-800 text-surface-400 border border-surface-700">
+                        <span className="px-1 py-0.5 rounded text-xs font-semibold bg-surface-800 text-surface-400 border border-surface-700">
                           RTL
                         </span>
                       )}

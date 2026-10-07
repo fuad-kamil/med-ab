@@ -971,13 +971,13 @@ export default function ExamEditor() {
                           {student.fullName}
                         </span>
                         {student.studentId && (
-                          <span className="text-[11px] font-mono px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-400 font-normal">
+                          <span className="text-xs font-mono px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-400 font-normal">
                             {student.studentId}
                           </span>
                         )}
                       </div>
                       {student.categoryIds && student.categoryIds.length > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-400">
+                        <span className="text-xs px-1.5 py-0.5 rounded bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-400">
                           {student.categoryIds.map((c) => (typeof c === 'object' ? c.name : c)).join(', ')}
                         </span>
                       )}
@@ -1209,7 +1209,7 @@ export default function ExamEditor() {
             {['mcq_single', 'mcq_multi', 'true_false'].includes(qForm.type) && (
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <label className="block text-xs font-semibold text-surface-500 uppercase tracking-wider">
+                  <label className="block text-sm font-medium text-surface-300">
                     Options {qForm.type !== 'true_false' && '(select correct answer)'}
                   </label>
                   {formErrors.correctAnswer && (

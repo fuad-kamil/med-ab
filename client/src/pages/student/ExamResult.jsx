@@ -156,12 +156,12 @@ export default function ExamResult() {
         {/* Result Header Card */}
         <div className="glass-card p-6 md:p-8 rounded-2xl border border-surface-800 text-center space-y-6 shadow-2xl">
           <div className="space-y-1">
-            <span className="text-xs uppercase font-bold tracking-widest text-teal-400">{t('exam.scoreReport')}</span>
-            <h1 className="text-2xl md:text-3xl font-bold text-surface-100">{examTitle}</h1>
+            <span className="text-xs font-semibold text-teal-400">{t('exam.scoreReport')}</span>
+            <h1 className="font-sans text-2xl md:text-3xl font-bold text-surface-100">{examTitle}</h1>
             <div className="flex items-center justify-center gap-2">
               <span className="text-sm text-surface-400">{subject}</span>
               {result?.examLanguage && (
-                <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-950/80 text-teal-300 border border-teal-800 uppercase">
+                <span className="px-2 py-0.5 rounded-full text-xs font-semibold bg-teal-950/80 text-teal-300 border border-teal-800">
                   🌐 {result.examLanguage === 'ar' ? 'العربية' : result.examLanguage === 'am' ? 'አማርኛ' : 'English'}
                 </span>
               )}
@@ -171,14 +171,14 @@ export default function ExamResult() {
           {/* Score Badge */}
           <div className="flex flex-col items-center justify-center space-y-4">
             <div className="inline-flex flex-col items-center justify-center p-6 rounded-2xl bg-surface-900 border border-surface-800 shadow-inner space-y-1 w-full max-w-sm">
-              <div className="text-4xl md:text-5xl font-black text-teal-400">
+              <div className="text-[44px] font-bold text-teal-400 tabular-nums leading-none">
                 {score} <span className="text-xl text-surface-500 font-normal">/ {totalMarks}</span>
               </div>
-              <div className="text-sm font-semibold text-surface-300">
+              <div className="text-base font-medium text-surface-300">
                 {t('exam.scoreLabel', { percentage })}
               </div>
               <div
-                className={`mt-2 px-4 py-1 rounded-full text-xs font-bold uppercase tracking-wider border ${
+                className={`mt-2 px-4 py-1 rounded-full text-xs font-semibold border ${
                   passed
                     ? 'bg-emerald-950 text-emerald-300 border-emerald-700'
                     : 'bg-rose-950 text-rose-300 border-rose-700'

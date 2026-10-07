@@ -359,7 +359,7 @@ export default function TakeExam() {
                   {student?.fullName || t('exam.student')}
                 </div>
                 {student?.studentId && (
-                  <div className="text-[10px] text-teal-400/80 font-mono">
+                  <div className="text-xs text-teal-400/80 font-mono" dir="ltr">
                     {student.studentId}
                   </div>
                 )}
@@ -373,7 +373,7 @@ export default function TakeExam() {
                   <button
                     type="button"
                     onClick={() => setShowInstructionsModal(true)}
-                    className="px-2 py-0.5 rounded-lg bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 text-[10px] font-semibold flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
+                    className="px-2 py-0.5 rounded-lg bg-teal-500/15 hover:bg-teal-500/25 text-teal-300 border border-teal-500/30 text-xs font-semibold flex items-center gap-1 shrink-0 transition-colors cursor-pointer"
                     title={t('exam.viewInstructions')}
                   >
                     <span>ℹ️</span>
@@ -381,7 +381,7 @@ export default function TakeExam() {
                   </button>
                 )}
               </div>
-              <div className="flex items-center gap-1.5 text-[11px] sm:text-xs text-surface-400 mt-0.5">
+              <div className="flex items-center gap-1.5 text-xs text-surface-400 mt-0.5">
                 <span className="truncate max-w-[100px] sm:max-w-none">{exam?.subject}</span>
                 <span>•</span>
                 <span className="text-teal-400 font-semibold">{answeredCount}/{questions.length} {t('common.done')}</span>
@@ -617,20 +617,20 @@ export default function TakeExam() {
           <div className="glass-card p-5 rounded-2xl border border-surface-800 space-y-4">
             {/* Student Info Box */}
             <div className="p-3 bg-teal-950/40 border border-teal-800/60 rounded-xl space-y-0.5">
-              <div className="text-[10px] font-semibold text-teal-400 uppercase tracking-wider">
+              <div className="text-xs font-semibold text-teal-400">
                 {t('exam.student')}
               </div>
               <div className="text-sm font-bold text-surface-100">
                 {student?.fullName || t('exam.student')}
               </div>
               {student?.studentId && (
-                <div className="text-xs font-mono text-surface-400">
+                <div className="text-xs font-mono text-surface-400" dir="ltr">
                   ID: {student.studentId}
                 </div>
               )}
             </div>
 
-            <h3 className="text-sm font-bold text-surface-200 uppercase tracking-wider">
+            <h3 className="text-sm font-semibold text-surface-200">
               {t('exam.questionNavigator')}
             </h3>
 
@@ -660,7 +660,7 @@ export default function TakeExam() {
                   >
                     <span>{idx + 1}</span>
                     {isFlagged && (
-                      <span className="absolute -top-1 -right-1 text-[10px]">🚩</span>
+                      <span className="absolute -top-1 -right-1 text-xs">🚩</span>
                     )}
                   </button>
                 );
@@ -919,7 +919,7 @@ export default function TakeExam() {
           <div className="space-y-4">
             {exam?.description && (
               <div className="space-y-1">
-                <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
+                <h4 className="text-xs font-semibold text-teal-400">
                   {t('exam.examDescription')}
                 </h4>
                 <div className="p-3 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-200 leading-relaxed whitespace-pre-wrap">
@@ -930,7 +930,7 @@ export default function TakeExam() {
 
             {exam?.instructions && (
               <div className="space-y-1">
-                <h4 className="text-xs font-bold text-teal-400 uppercase tracking-wider">
+                <h4 className="text-xs font-semibold text-teal-400">
                   {t('exam.examInstructions')}
                 </h4>
                 <div className="p-3 bg-surface-900 border border-surface-800 rounded-xl text-sm text-surface-200 leading-relaxed whitespace-pre-wrap">

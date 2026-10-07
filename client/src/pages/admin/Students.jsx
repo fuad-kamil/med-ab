@@ -569,7 +569,7 @@ export default function Students() {
             <Filter className="w-3.5 h-3.5 stroke-[1.75]" />
             <span>{t('students.filters') || 'Filters'}</span>
             {activeFilterCount > 0 && (
-              <span className="w-5 h-5 rounded-full bg-primary-600 text-white text-[10px] font-bold flex items-center justify-center">
+              <span className="w-5 h-5 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center">
                 {activeFilterCount}
               </span>
             )}
@@ -583,14 +583,14 @@ export default function Students() {
               <span>{t('students.foundResults', { count: pagination.total }) || `Found ${pagination.total} results`}</span>
 
               {debouncedSearch && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-primary-500/15 text-primary-600 dark:text-primary-300">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary-500/15 text-primary-600 dark:text-primary-300">
                   Search: "{debouncedSearch}"
                   <button onClick={() => setSearch('')} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
                 </span>
               )}
 
               {selectedGenderFilter && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] bg-primary-500/15 text-primary-600 dark:text-primary-300">
+                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs bg-primary-500/15 text-primary-600 dark:text-primary-300">
                   Gender: {selectedGenderFilter}
                   <button onClick={() => setSelectedGenderFilter('')} className="hover:text-rose-500"><X className="w-3 h-3" /></button>
                 </span>
@@ -621,7 +621,7 @@ export default function Students() {
               </button>
             )}
             {isSelectAllMatching && (
-              <span className="px-2 py-0.5 rounded-full bg-primary-700 text-white text-[11px]">
+              <span className="px-2 py-0.5 rounded-full bg-primary-700 text-white text-xs">
                 All {pagination.total} matching selected
               </span>
             )}
@@ -815,7 +815,7 @@ export default function Students() {
 
                         {/* Monospace Student ID chip with copy button */}
                         <td className="py-3 px-3.5" onClick={(e) => e.stopPropagation()}>
-                          <span className="inline-flex items-center gap-1 font-mono text-[11px] font-semibold px-2 py-0.5 rounded-md bg-surface-200/80 dark:bg-surface-800 text-surface-800 dark:text-surface-200 border border-surface-300/60 dark:border-surface-700/60">
+                          <span className="inline-flex items-center gap-1 font-mono text-xs font-semibold px-2 py-0.5 rounded-md bg-surface-200/80 dark:bg-surface-800 text-surface-800 dark:text-surface-200 border border-surface-300/60 dark:border-surface-700/60">
                             <span>{student.studentId}</span>
                             <button
                               onClick={(e) => handleCopyId(e, student.studentId)}
@@ -835,7 +835,7 @@ export default function Students() {
                         <td className="py-3 px-3.5 font-medium text-surface-900 dark:text-surface-100" dir="auto">
                           <div className="flex items-center gap-2.5 min-w-0">
                             <div
-                              className={`w-7 h-7 rounded-xl ${avatarStyle.bg} ${avatarStyle.text} ${avatarStyle.border} border flex items-center justify-center font-bold text-[11px] shrink-0`}
+                              className={`w-7 h-7 rounded-xl ${avatarStyle.bg} ${avatarStyle.text} ${avatarStyle.border} border flex items-center justify-center font-bold text-xs shrink-0`}
                             >
                               {initials}
                             </div>
@@ -844,11 +844,11 @@ export default function Students() {
                                 {student.fullName}
                               </div>
                               {student.email ? (
-                                <div className="text-[11px] text-surface-500 dark:text-surface-400 truncate font-mono">
+                                <div className="text-xs text-surface-500 dark:text-surface-400 truncate font-mono">
                                   {student.email}
                                 </div>
                               ) : (
-                                <div className="text-[11px] text-rose-500 dark:text-rose-400 italic flex items-center gap-1">
+                                <div className="text-xs text-rose-500 dark:text-rose-400 italic flex items-center gap-1">
                                   <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
                                   <span>{t('students.noEmail')}</span>
                                 </div>
@@ -859,7 +859,7 @@ export default function Students() {
 
                         {/* Gender (Neutral badge) */}
                         <td className="py-3 px-3.5">
-                          <span className="px-2 py-0.5 rounded-md text-[11px] font-medium bg-surface-200/80 dark:bg-surface-800 text-surface-700 dark:text-surface-300 capitalize">
+                          <span className="px-2 py-0.5 rounded-md text-xs font-medium bg-surface-200/80 dark:bg-surface-800 text-surface-700 dark:text-surface-300 capitalize">
                             {student.gender ? t(`students.${student.gender}`) || student.gender : '—'}
                           </span>
                         </td>
@@ -867,7 +867,7 @@ export default function Students() {
                         {/* Status (Dot + Text) */}
                         <td className="py-3 px-3.5">
                           <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold ${
+                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
                               student.isActive
                                 ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                                 : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
@@ -1081,7 +1081,7 @@ export default function Students() {
                     </div>
 
                     <span
-                      className={`px-2 py-0.5 rounded-full text-[10px] font-semibold shrink-0 ${
+                      className={`px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 ${
                         student.isActive
                           ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
                           : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
@@ -1095,14 +1095,14 @@ export default function Students() {
                   <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-surface-200/60 dark:border-surface-800">
 
                     <div>
-                      <span className="text-[11px] text-surface-400 block">{t('students.gender') || 'Gender'}</span>
+                      <span className="text-xs text-surface-400 block">{t('students.gender') || 'Gender'}</span>
                       <span className="font-medium text-surface-800 dark:text-surface-200 capitalize block">
                         {student.gender ? t(`students.${student.gender}`) || student.gender : 'Unspecified'}
                       </span>
                     </div>
 
                     <div className="col-span-2">
-                      <span className="text-[11px] text-surface-400 block">{t('students.email') || 'Email'}</span>
+                      <span className="text-xs text-surface-400 block">{t('students.email') || 'Email'}</span>
                       {student.email ? (
                         <span className="font-mono text-xs text-primary-600 dark:text-primary-400 break-words block">
                           {student.email}
@@ -1266,7 +1266,7 @@ export default function Students() {
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, password: generateRandomPassword() }))}
-                className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer flex items-center gap-1"
+                className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer flex items-center gap-1"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>{t('students.generateNew')}</span>
@@ -1335,7 +1335,7 @@ export default function Students() {
               <button
                 type="button"
                 onClick={() => setFormData((prev) => ({ ...prev, password: generateRandomPassword() }))}
-                className="text-[11px] font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer flex items-center gap-1"
+                className="text-xs font-semibold text-primary-600 dark:text-primary-400 hover:underline cursor-pointer flex items-center gap-1"
               >
                 <RefreshCw className="w-3 h-3" />
                 <span>{t('students.generateNew')}</span>

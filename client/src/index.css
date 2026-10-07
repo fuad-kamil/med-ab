@@ -43,7 +43,10 @@
   --color-info-500: #3b82f6;
   --color-info-600: #2563eb;
 
-  --font-sans: 'Inter', 'Noto Sans', 'Noto Sans Ethiopic', 'Noto Naskh Arabic', system-ui, sans-serif;
+  --font-sans: var(--font-sans);
+  --font-content: var(--font-content);
+  --font-quran: var(--font-quran);
+  --font-mono: var(--font-mono);
 }
 
 :root {
@@ -52,24 +55,87 @@
   --z-overlay: 60;
   --z-modal: 70;
   --z-toast: 80;
+
+  --font-sans: "Inter Variable", "Noto Sans Arabic Variable", "Noto Sans Ethiopic", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-content: "Inter Variable", "Noto Naskh Arabic Variable", "Noto Sans Ethiopic", ui-sans-serif, system-ui, "Segoe UI", Arial, sans-serif;
+  --font-quran: "Amiri Quran", "Noto Naskh Arabic Variable", "Traditional Arabic", serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", "Roboto Mono", Menlo, Consolas, monospace;
+
+  --script-scale: 1;
+  --line-height-body: 1.5;
+  --line-height-content: 1.6;
 }
 
-html[lang="am"] {
-  font-family: 'Noto Sans Ethiopic', 'Inter', system-ui, sans-serif;
-  line-height: 1.7;
+:lang(ar) {
+  --font-sans: "Noto Sans Arabic Variable", "Inter Variable", "Noto Sans Ethiopic", ui-sans-serif, system-ui, "Segoe UI", Tahoma, Arial, sans-serif;
+  --script-scale: 1.08;
+  --line-height-body: 1.75;
+  --line-height-content: 2.0;
 }
 
-html[lang="ar"] {
-  font-family: 'Noto Sans Arabic', 'Noto Naskh Arabic', 'Inter', system-ui, sans-serif;
-  line-height: 1.85;
-  letter-spacing: 0 !important;
+:lang(am) {
+  --font-sans: "Noto Sans Ethiopic", "Inter Variable", "Noto Sans Arabic Variable", ui-sans-serif, system-ui, "Segoe UI", Nyala, Arial, sans-serif;
+  --script-scale: 1.02;
+  --line-height-body: 1.7;
+  --line-height-content: 2.0;
 }
 
-/* Override letter-spacing and text-transform for Arabic & Amharic */
-html[lang="ar"] *,
-html[lang="am"] * {
-  letter-spacing: normal !important;
-  text-transform: none !important;
+/* ---- Global Resets ---- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  font-size: calc(16px * var(--script-scale));
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-sans);
+  background-color: var(--color-surface-950);
+  color: var(--color-surface-100);
+  line-height: var(--line-height-body);
+  min-height: 100dvh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* ---- Role Utilities ---- */
+.font-sans { font-family: var(--font-sans) !important; }
+.font-content { font-family: var(--font-content) !important; line-height: var(--line-height-content); }
+.font-quran { font-family: var(--font-quran) !important; line-height: 2.2; }
+.font-mono { font-family: var(--font-mono) !important; }
+
+/* Qur'anic text inline marker */
+.quran, span.quran {
+  font-family: var(--font-quran) !important;
+  font-size: 1.15em;
+  line-height: 2.2;
+}
+
+/* Headings typography optimization */
+h1, h2, h3, h4, h5, h6, .heading-opt {
+  font-optical-sizing: auto;
+  text-rendering: optimizeLegibility;
+}
+:lang(en) h1, :lang(en) h2, :lang(en) h3 {
+  letter-spacing: -0.01em;
+}
+
+/* Numeric alignment */
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+#root {
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ---- Light Theme Overrides ---- */
@@ -85,36 +151,6 @@ html[lang="am"] * {
   --color-surface-800: #e7e5e4;
   --color-surface-900: #f5f5f4;
   --color-surface-950: #ffffff;
-}
-
-/* ---- Global Resets ---- */
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-html {
-  -webkit-text-size-adjust: 100%;
-  -webkit-tap-highlight-color: transparent;
-}
-
-body {
-  margin: 0;
-  font-family: var(--font-sans);
-  background-color: var(--color-surface-950);
-  color: var(--color-surface-100);
-  line-height: 1.6;
-  min-height: 100dvh;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  transition: background-color 0.2s ease, color 0.2s ease;
-}
-
-#root {
-  min-height: 100dvh;
-  display: flex;
-  flex-direction: column;
 }
 
 /* ---- Scrollbar ---- */

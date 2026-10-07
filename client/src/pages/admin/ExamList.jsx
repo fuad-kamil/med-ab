@@ -331,7 +331,7 @@ function ExtendTimeDialog({ isOpen, onClose, exam, onSuccess }) {
                 <p className="font-bold text-surface-100">
                   {t('exams.scopeAll', { count: students.length })}
                 </p>
-                <p className="text-surface-400 text-[11px]">
+                <p className="text-surface-400 text-xs">
                   Extends duration for exam and active student timers.
                 </p>
               </div>
@@ -348,7 +348,7 @@ function ExtendTimeDialog({ isOpen, onClose, exam, onSuccess }) {
               />
               <div className="text-xs">
                 <p className="font-bold text-surface-100">{t('exams.scopeSelected')}</p>
-                <p className="text-surface-400 text-[11px]">
+                <p className="text-surface-400 text-xs">
                   Pick specific in-progress students to grant extra time.
                 </p>
               </div>
@@ -412,10 +412,10 @@ function ExtendTimeDialog({ isOpen, onClose, exam, onSuccess }) {
                         />
                         <span className="font-semibold truncate">{st.fullName}</span>
                         {st.studentCode && (
-                          <span className="text-[10px] text-surface-500">({st.studentCode})</span>
+                          <span className="text-xs text-surface-500">({st.studentCode})</span>
                         )}
                       </div>
-                      <span className="text-[10px] text-surface-500 shrink-0">
+                      <span className="text-xs text-surface-500 shrink-0">
                         Started: {new Date(st.startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                       </span>
                     </label>
@@ -488,7 +488,7 @@ function CloseLinkModal({ isOpen, onClose, exam, onConfirm }) {
               <p className="font-bold text-surface-100">
                 {t('exams.closeLinkOptionBlock')}
               </p>
-              <p className="text-surface-400 text-[11px]">
+              <p className="text-surface-400 text-xs">
                 Students currently taking the exam can finish normally until their timer expires.
               </p>
             </div>
@@ -507,7 +507,7 @@ function CloseLinkModal({ isOpen, onClose, exam, onConfirm }) {
               <p className="font-bold text-rose-300">
                 {t('exams.closeLinkOptionAutoSubmit', { count: inProgressCount })}
               </p>
-              <p className="text-surface-400 text-[11px]">
+              <p className="text-surface-400 text-xs">
                 Immediately submits all active student attempts with their current answers.
               </p>
             </div>
@@ -585,7 +585,7 @@ function DeleteExamModal({ isOpen, onClose, exam, onConfirm }) {
               <p className="font-bold">
                 {t('exams.resultsWillBeKept', { count: attemptCount })}
               </p>
-              <p className="text-teal-300/80 text-[11px] mt-0.5">
+              <p className="text-teal-300/80 text-xs mt-0.5">
                 {t('exams.resultsKeptSub')}
               </p>
             </div>
@@ -1057,7 +1057,7 @@ export default function ExamList() {
                 <X className="w-4 h-4" />
               </button>
             ) : (
-              <kbd className="hidden lg:inline-flex absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[10px] font-mono font-bold text-surface-500 bg-surface-800 border border-surface-700 rounded shadow-xs pointer-events-none">
+              <kbd className="hidden lg:inline-flex absolute right-3 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-xs font-mono font-bold text-surface-500 bg-surface-800 border border-surface-700 rounded shadow-xs pointer-events-none">
                 /
               </kbd>
             )}
@@ -1106,7 +1106,7 @@ export default function ExamList() {
               <SlidersHorizontal className="w-4 h-4 text-primary-400" />
               <span>{t('students.filters')}</span>
               {activeFiltersCount > 0 && (
-                <span className="px-1.5 py-0.5 rounded-full bg-primary-600 text-white text-[10px]">
+                <span className="px-1.5 py-0.5 rounded-full bg-primary-600 text-white text-xs">
                   {activeFiltersCount}
                 </span>
               )}
@@ -1146,7 +1146,7 @@ export default function ExamList() {
                 >
                   <span>{tab.label}</span>
                   <span
-                    className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                    className={`px-1.5 py-0.2 rounded-full text-xs font-bold ${
                       isActive ? 'bg-white/20 text-white' : 'bg-surface-800 text-surface-400'
                     }`}
                   >
@@ -1243,20 +1243,20 @@ export default function ExamList() {
                       {/* Status Badge (ONE status badge with icon + text) */}
 
                       {isOpen && (
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 flex items-center gap-1.5 shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-950/60 text-emerald-300 border border-emerald-800/80 flex items-center gap-1.5 shrink-0">
                           <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
                           <span>{t('exams.openStatus')}</span>
                         </span>
                       )}
                       {/* Exam Language Badge */}
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-teal-950/60 text-teal-300 border border-teal-800/80 shrink-0 uppercase flex items-center gap-1">
+                      <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-teal-950/60 text-teal-300 border border-teal-800/80 shrink-0 flex items-center gap-1">
                         <span>🌐</span>
                         <span>{exam.language === 'ar' ? 'العربية (AR)' : exam.language === 'am' ? 'አማርኛ (AM)' : 'English (EN)'}</span>
                       </span>
 
                       {/* Category Badge */}
                       {categoryName && (
-                        <span className="px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-surface-800/60 text-surface-300 border border-surface-700/60 shrink-0">
+                        <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-surface-800/60 text-surface-300 border border-surface-700/60 shrink-0">
                           {categoryName}
                         </span>
                       )}
@@ -1293,7 +1293,7 @@ export default function ExamList() {
                         </span>
 
                         {inProgress > 0 && (
-                          <span className="px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-800/60 text-[11px] font-bold flex items-center gap-1">
+                          <span className="px-2 py-0.5 rounded-full bg-amber-950/60 text-amber-300 border border-amber-800/60 text-xs font-bold flex items-center gap-1">
                             <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping"></span>
                             <span>{t('exams.inProgressBadge', { count: inProgress })}</span>
                           </span>

@@ -483,13 +483,13 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
                                       },
                                       table: ({ children }) => (
                                         <div className="overflow-x-auto my-2 rounded-xl border border-surface-800">
-                                          <table className="w-full text-left text-[11px]">
+                                          <table className="w-full text-left text-xs">
                                             {children}
                                           </table>
                                         </div>
                                       ),
                                       code: ({ inline, children }) => (
-                                        <code className={`${inline ? 'bg-surface-800 px-1 py-0.5 rounded text-[11px] text-amber-300' : 'block bg-surface-950 p-2.5 rounded-xl border border-surface-800 overflow-x-auto text-[11px] font-mono text-surface-200'}`}>
+                                        <code className={`${inline ? 'bg-surface-800 px-1 py-0.5 rounded text-xs text-amber-300' : 'block bg-surface-950 p-2.5 rounded-xl border border-surface-800 overflow-x-auto text-xs font-mono text-surface-200'}`}>
                                           {children}
                                         </code>
                                       ),
@@ -503,7 +503,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
 
                             {/* Assistant Actions (Copy, Regenerate) */}
                             {!isUser && (
-                              <div className="flex items-center gap-2 pt-1 text-[11px] text-surface-400">
+                              <div className="flex items-center gap-2 pt-1 text-xs text-surface-400">
                                 <button
                                   type="button"
                                   onClick={() => handleCopyMessage(m.id || idx, m.content)}
@@ -554,7 +554,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
                             <span className="w-1.5 h-1.5 rounded-full bg-primary-400 animate-pulse delay-300" />
                           </div>
                           {isColdStart && (
-                            <p className="text-[11px] text-amber-400 flex items-center gap-1">
+                            <p className="text-xs text-amber-400 flex items-center gap-1">
                               <Clock className="w-3 h-3" />
                               <span>{t('ai.wakingUp')}</span>
                             </p>
@@ -573,7 +573,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
                         <button
                           type="button"
                           onClick={() => handleSendMessage()}
-                          className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-[11px] shrink-0 cursor-pointer"
+                          className="px-2.5 py-1 rounded-lg bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 font-bold text-xs shrink-0 cursor-pointer"
                         >
                           Retry
                         </button>
@@ -627,7 +627,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
                 {/* Send / Stop Action Button inside Container at Bottom-Right */}
                 <div className="absolute bottom-2 right-2 flex items-center gap-2">
                   {input.length > 800 && (
-                    <span className="text-[10px] font-mono text-amber-400">
+                    <span className="text-xs font-mono text-amber-400">
                       {1000 - input.length}
                     </span>
                   )}
@@ -658,7 +658,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
               </div>
 
               {/* Bottom Muted Disclaimer & Keyboard Hint */}
-              <div className="flex items-center justify-between text-[11px] text-surface-400 px-1">
+              <div className="flex items-center justify-between text-xs text-surface-400 px-1">
                 <div className="flex items-center gap-1 truncate">
                   <span className="truncate">{t('ai.disclaimer')}</span>
                   <div className="relative inline-block">
@@ -680,7 +680,7 @@ export default function AiAssistantDrawer({ isOpen, onClose, triggerRef }) {
                 </div>
 
                 {!isTouchDevice && (
-                  <span className="hidden sm:inline text-surface-500 text-[10px] shrink-0 pl-2">
+                  <span className="hidden sm:inline text-surface-500 text-xs shrink-0 pl-2">
                     {t('ai.keyboardHint')}
                   </span>
                 )}

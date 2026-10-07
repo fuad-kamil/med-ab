@@ -1062,7 +1062,7 @@ export default function Settings() {
 
             {/* Interface Language Radiogroup */}
             <div className="space-y-3 text-start">
-              <label className="text-xs font-bold text-surface-300 uppercase tracking-wider">
+              <label className="text-sm font-medium text-surface-300">
                 {t('settings.languageRegionSection.interfaceLanguage') || 'Interface Language'}
               </label>
 
@@ -1092,12 +1092,12 @@ export default function Settings() {
                             {lang.nativeName}
                           </span>
                           {lang.isRtl && (
-                            <span className="px-1 py-0.5 rounded text-[9px] font-semibold bg-surface-800 text-surface-400 border border-surface-700">
+                            <span className="px-1 py-0.5 rounded text-xs font-semibold bg-surface-800 text-surface-400 border border-surface-700">
                               RTL
                             </span>
                           )}
                         </div>
-                        <span className="text-[11px] text-surface-400 block truncate">{lang.label}</span>
+                        <span className="text-xs text-surface-400 block truncate">{lang.label}</span>
                       </div>
                       {isActive && <Check className="w-4 h-4 text-primary-400 shrink-0" strokeWidth={2} />}
                     </button>
@@ -1108,7 +1108,7 @@ export default function Settings() {
 
             {/* Display Preferences */}
             <div className="pt-4 border-t border-surface-800 space-y-4 text-start">
-              <label className="text-xs font-bold text-surface-300 uppercase tracking-wider block">
+              <label className="text-sm font-medium text-surface-300 block">
                 {t('settings.languageRegionSection.displayPreferences') || 'Display Preferences'}
               </label>
 
@@ -1348,7 +1348,7 @@ export default function Settings() {
                       : t('settings.backupSection.neverBackup') || 'Never',
                   })}
                 </p>
-                <p className="text-[11px] text-surface-500">
+                <p className="text-xs text-surface-500">
                   Includes students, categories, exams, results & settings (excludes passwords/tokens).
                 </p>
               </div>

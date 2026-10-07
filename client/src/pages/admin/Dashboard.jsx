@@ -312,7 +312,7 @@ export default function Dashboard() {
 
                       {/* Candidate Progress Bar */}
                       <div>
-                        <div className="flex justify-between text-[11px] text-surface-400 mb-1 font-medium">
+                        <div className="flex justify-between text-xs text-surface-400 mb-1 font-medium">
                           <span>{t('dashboard.participationRate') || 'Participation Rate'}</span>
                           <span>{percent}%</span>
                         </div>
@@ -355,7 +355,7 @@ export default function Dashboard() {
                   >
                     <div className="min-w-0">
                       <p className="font-semibold text-surface-200 truncate">{sub.studentName}</p>
-                      <p className="text-surface-400 text-[11px] truncate mt-0.5">
+                      <p className="text-surface-400 text-xs truncate mt-0.5">
                         {sub.examTitle} • {formatRelativeTime(sub.submittedAt)}
                       </p>
                     </div>
@@ -420,7 +420,7 @@ export default function Dashboard() {
                       <p className="text-xs font-semibold text-surface-200 group-hover:text-primary-400 transition-colors">
                         {cat.name}
                       </p>
-                      <p className="text-[11px] text-surface-500 mt-0.5">
+                      <p className="text-xs text-surface-500 mt-0.5">
                         {cat.studentCount} students • {cat.examCount} exams
                       </p>
                     </div>

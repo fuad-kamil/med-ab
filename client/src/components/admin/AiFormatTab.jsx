@@ -331,7 +331,7 @@ export default function AiFormatTab({ onInsertCsv }) {
               <button
                 type="button"
                 onClick={handlePaste}
-                className="px-2 py-1 rounded-lg hover:bg-surface-800 text-surface-300 hover:text-surface-100 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                className="px-2 py-1 rounded-lg hover:bg-surface-800 text-surface-300 hover:text-surface-100 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
                 title="Paste from clipboard"
               >
                 <Clipboard className="w-3.5 h-3.5 text-primary-400" />
@@ -341,7 +341,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                 <button
                   type="button"
                   onClick={handleClear}
-                  className="px-2 py-1 rounded-lg hover:bg-rose-500/20 text-surface-400 hover:text-rose-400 text-[11px] font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                  className="px-2 py-1 rounded-lg hover:bg-rose-500/20 text-surface-400 hover:text-rose-400 text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
                 >
                   <Trash2 className="w-3.5 h-3.5" />
                   <span>{t('ai.clearBtn')}</span>
@@ -350,7 +350,7 @@ export default function AiFormatTab({ onInsertCsv }) {
             </div>
 
             {/* Bottom Character Counter & Example Loader */}
-            <div className="flex items-center justify-between mt-2 px-1 text-[11px] text-surface-400">
+            <div className="flex items-center justify-between mt-2 px-1 text-xs text-surface-400">
               <button
                 type="button"
                 onClick={handleLoadExample}
@@ -390,7 +390,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                       e.stopPropagation();
                       handleCancel();
                     }}
-                    className="ml-3 px-2 py-0.5 rounded bg-surface-900/60 hover:bg-rose-600 text-[10px] text-white"
+                    className="ml-3 px-2 py-0.5 rounded bg-surface-900/60 hover:bg-rose-600 text-xs text-white"
                   >
                     Cancel
                   </button>
@@ -402,7 +402,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                 </>
               )}
             </button>
-            <p className="text-[11px] text-surface-500 text-center mt-2">
+            <p className="text-xs text-surface-500 text-center mt-2">
               {t('ai.ctrlEnterHint')}
             </p>
           </div>
@@ -418,12 +418,12 @@ export default function AiFormatTab({ onInsertCsv }) {
                   {t('ai.summaryCount', { count: resultQuestions.length })}
                 </span>
                 {attentionCount > 0 && (
-                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-[10px] font-semibold border border-amber-500/30">
+                  <span className="px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-400 text-xs font-semibold border border-amber-500/30">
                     {t('ai.summaryAttention', { count: attentionCount })}
                   </span>
                 )}
               </div>
-              <p className="text-[11px] text-surface-400 mt-0.5">
+              <p className="text-xs text-surface-400 mt-0.5">
                 {selectedCount} of {resultQuestions.length} selected for import
               </p>
             </div>
@@ -431,7 +431,7 @@ export default function AiFormatTab({ onInsertCsv }) {
             <button
               type="button"
               onClick={handleSelectAllValid}
-              className="px-2.5 py-1.5 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-300 text-[11px] font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
+              className="px-2.5 py-1.5 rounded-xl bg-surface-800 hover:bg-surface-700 text-surface-300 text-xs font-semibold transition-colors cursor-pointer flex items-center gap-1.5"
             >
               <CheckSquare className="w-3.5 h-3.5 text-primary-400" />
               <span>{t('ai.selectAllValid')}</span>
@@ -482,7 +482,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                     <select
                       value={q.type}
                       onChange={(e) => handleUpdateCardType(q.id, e.target.value)}
-                      className="px-2 py-0.5 rounded-lg bg-surface-950 border border-surface-700 text-[11px] text-surface-300 focus:outline-none"
+                      className="px-2 py-0.5 rounded-lg bg-surface-950 border border-surface-700 text-xs text-surface-300 focus:outline-none"
                     >
                       <option value="mcq_single">{t('ai.mcqSingle')}</option>
                       <option value="mcq_multi">{t('ai.mcqMulti')}</option>
@@ -518,7 +518,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                     {q.warnings.map((warn, wIdx) => (
                       <div
                         key={wIdx}
-                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-[11px] flex items-center gap-1.5"
+                        className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs flex items-center gap-1.5"
                       >
                         <AlertCircle className="w-3.5 h-3.5 text-amber-400 shrink-0" />
                         <span>{t(`ai.${warn}`)}</span>
@@ -530,12 +530,12 @@ export default function AiFormatTab({ onInsertCsv }) {
                 {/* MCQ / True-False Options */}
                 {q.type !== 'short_answer' && (
                   <div className="space-y-2 pt-1 border-t border-surface-800/60">
-                    <div className="text-[11px] font-semibold text-surface-400 flex items-center justify-between">
+                    <div className="text-xs font-semibold text-surface-400 flex items-center justify-between">
                       <span>Options (mark correct answer)</span>
                       <button
                         type="button"
                         onClick={() => handleAddOption(q.id)}
-                        className="text-primary-400 hover:underline flex items-center gap-1 text-[11px] cursor-pointer"
+                        className="text-primary-400 hover:underline flex items-center gap-1 text-xs cursor-pointer"
                       >
                         <Plus className="w-3 h-3" />
                         <span>{t('ai.addOption')}</span>
@@ -548,7 +548,7 @@ export default function AiFormatTab({ onInsertCsv }) {
                           <button
                             type="button"
                             onClick={() => handleToggleOptionCorrect(q.id, opt.id)}
-                            className={`p-1 rounded-lg border text-[11px] font-bold transition-all cursor-pointer flex items-center gap-1 ${
+                            className={`p-1 rounded-lg border text-xs font-bold transition-all cursor-pointer flex items-center gap-1 ${
                               opt.isCorrect
                                 ? 'bg-emerald-500/20 border-emerald-500/60 text-emerald-300'
                                 : 'bg-surface-950 border-surface-700 text-surface-400 hover:border-surface-500'
@@ -606,7 +606,7 @@ export default function AiFormatTab({ onInsertCsv }) {
 
                 {showExamDropdown && (
                   <div className="absolute bottom-full mb-2 left-0 right-0 bg-surface-900 border border-surface-700 rounded-2xl shadow-2xl p-2 space-y-2 z-50 animate-scale-in">
-                    <div className="text-[11px] font-semibold text-surface-400 px-2 pt-1">
+                    <div className="text-xs font-semibold text-surface-400 px-2 pt-1">
                       {t('ai.selectExam')}
                     </div>
                     {exams.length === 0 ? (

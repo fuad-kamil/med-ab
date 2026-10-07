@@ -63,13 +63,13 @@ export default function AdminLogin() {
           <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal-600/10 dark:bg-teal-500/20 border border-teal-500/30 text-teal-600 dark:text-teal-400 shadow-md shadow-teal-600/10 mb-1">
             <GraduationCap className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-surface-900 dark:text-surface-100">
-            {t('common.appName')}
-          </h1>
-          <div className="font-arabic text-xl text-teal-600 dark:text-teal-400 text-center dir-rtl py-1 select-none" dir="rtl">
+          <div className="font-quran text-[34px] text-teal-600 dark:text-teal-400 text-center leading-[2] py-1 select-none" dir="rtl">
             بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ
           </div>
-          <p className="text-xs text-surface-500 dark:text-surface-400">
+          <h1 className="font-sans text-[28px] font-bold text-surface-900 dark:text-surface-100">
+            {t('common.appName')}
+          </h1>
+          <p className="text-[13px] text-surface-500 dark:text-surface-400">
             {t('exam.ustazAdminLogin')}
           </p>
         </div>
@@ -101,7 +101,7 @@ export default function AdminLogin() {
           />
 
           <div className="space-y-1">
-            <label className="block text-xs font-semibold text-surface-700 dark:text-surface-300 uppercase tracking-wider">
+            <label className="block text-sm font-medium text-surface-700 dark:text-surface-300">
               {t('students.password')}
             </label>
             <div className="relative">

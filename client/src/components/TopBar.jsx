@@ -288,7 +288,7 @@ export default function TopBar({ onMenuClick, isMobileMenuOpen = false }) {
             <span className="text-xs font-semibold text-surface-200 truncate">
               {user?.fullName || user?.username || 'Admin'}
             </span>
-            <span className="text-[10px] text-surface-400 capitalize truncate mt-0.5">
+            <span className="text-xs text-surface-400 capitalize truncate mt-0.5">
               {user?.role || 'Admin'}
             </span>
           </div>
@@ -326,7 +326,7 @@ export default function TopBar({ onMenuClick, isMobileMenuOpen = false }) {
                     {user?.role || 'Administrator'}
                   </p>
                   {user?.email && (
-                    <p className="text-[11px] text-surface-500 truncate mt-0.5" dir="ltr">
+                    <p className="text-xs text-surface-500 truncate mt-0.5" dir="ltr">
                       {user.email}
                     </p>
                   )}
@@ -395,7 +395,7 @@ export default function TopBar({ onMenuClick, isMobileMenuOpen = false }) {
                           }`}
                         >
                           <IconComp className="w-4 h-4 mb-1" strokeWidth={1.75} />
-                          <span className="text-[11px] truncate">{item.label}</span>
+                          <span className="text-xs truncate">{item.label}</span>
                         </button>
                       );
                     })}

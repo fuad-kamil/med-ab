@@ -11,7 +11,7 @@ export const Input = forwardRef(function Input(
       {label && (
         <label
           htmlFor={inputId}
-          className="text-xs font-semibold uppercase tracking-wider text-surface-600 dark:text-surface-300"
+          className="text-sm font-medium text-surface-700 dark:text-surface-300"
         >
           {label}
         </label>
@@ -47,7 +47,7 @@ export const Select = forwardRef(function Select(
       {label && (
         <label
           htmlFor={selectId}
-          className="text-xs font-semibold uppercase tracking-wider text-surface-600 dark:text-surface-300"
+          className="text-sm font-medium text-surface-700 dark:text-surface-300"
         >
           {label}
         </label>
@@ -84,7 +84,7 @@ export const Textarea = forwardRef(function Textarea(
       {label && (
         <label
           htmlFor={textareaId}
-          className="text-xs font-semibold uppercase tracking-wider text-surface-600 dark:text-surface-300"
+          className="text-sm font-medium text-surface-700 dark:text-surface-300"
         >
           {label}
         </label>

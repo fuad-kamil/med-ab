@@ -127,7 +127,7 @@ export default function PreferencesControls({ className = '' }) {
                     <div className="flex items-center gap-2">
                       <span lang={lang.code}>{lang.nativeName}</span>
                       {lang.isRtl && (
-                        <span className="px-1 py-0.5 rounded text-[9px] font-semibold bg-surface-800 text-surface-400 border border-surface-700">
+                        <span className="px-1 py-0.5 rounded text-xs font-semibold bg-surface-800 text-surface-400 border border-surface-700">
                           RTL
                         </span>
                       )}

@@ -551,15 +551,15 @@ export default function Results() {
 
             <div className="grid grid-cols-3 gap-3 sm:gap-4 mt-4 pt-3 border-t border-surface-800/80 text-xs sm:text-sm">
               <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
-                <span className="text-surface-400 block text-[11px] font-medium">{t('results.totalSubmissions')}</span>
+                <span className="text-surface-400 block text-xs font-medium">{t('results.totalSubmissions')}</span>
                 <span className="text-surface-100 font-bold text-base sm:text-lg">{examDetails.results?.length || 0}</span>
               </div>
               <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
-                <span className="text-surface-400 block text-[11px] font-medium">{t('results.passingMark')}</span>
+                <span className="text-surface-400 block text-xs font-medium">{t('results.passingMark')}</span>
                 <span className="text-primary-400 font-bold text-base sm:text-lg">{examDetails.exam?.passMark || 'N/A'}%</span>
               </div>
               <div className="p-2.5 rounded-xl bg-surface-950/60 border border-surface-800">
-                <span className="text-surface-400 block text-[11px] font-medium">{t('results.duration')}</span>
+                <span className="text-surface-400 block text-xs font-medium">{t('results.duration')}</span>
                 <span className="text-surface-100 font-bold text-base sm:text-lg">{t('common.minutes_other', { count: examDetails.exam?.durationMinutes || 0 })}</span>
               </div>
             </div>
@@ -585,7 +585,7 @@ export default function Results() {
                 {/* Desktop Table View */}
                 <div className="hidden md:block overflow-x-auto">
                   <table className="w-full text-left text-sm text-surface-300">
-                    <thead className="bg-surface-950/80 text-surface-400 uppercase text-xs">
+                    <thead className="bg-surface-950/80 text-surface-400 text-xs font-semibold">
                       <tr>
                         <th className="px-4 py-3.5 w-10">
                           <input
@@ -744,7 +744,7 @@ export default function Results() {
                           </div>
                           <div className="min-w-0">
                             <div className="font-bold text-surface-100 text-sm truncate">{att.studentName}</div>
-                            <span className="font-mono text-[11px] px-1.5 py-0.5 rounded bg-surface-800 text-surface-400">
+                            <span className="font-mono text-xs px-1.5 py-0.5 rounded bg-surface-800 text-surface-400">
                               {att.studentId}
                             </span>
                           </div>
@@ -764,20 +764,20 @@ export default function Results() {
 
                       <div className="grid grid-cols-3 gap-2 p-2.5 rounded-xl bg-surface-950/80 text-xs border border-surface-800/80">
                         <div>
-                          <span className="text-surface-500 block text-[10px]">{t('results.score')}</span>
+                          <span className="text-surface-500 block text-xs">{t('results.score')}</span>
                           <span className="font-bold text-surface-100">
                             {att.score !== null ? `${att.score} / ${att.totalMarks}` : 'N/A'}
                           </span>
                         </div>
                         <div>
-                          <span className="text-surface-500 block text-[10px]">{t('results.percentage')}</span>
+                          <span className="text-surface-500 block text-xs">{t('results.percentage')}</span>
                           <span className={att.passed ? 'font-bold text-emerald-400' : 'font-bold text-rose-400'}>
                             {att.percentage !== null ? `${att.percentage}%` : '-'}
                           </span>
                         </div>
                         <div className="text-right">
-                          <span className="text-surface-500 block text-[10px]">{t('results.submittedAt')}</span>
-                          <span className="text-surface-300 text-[11px]">
+                          <span className="text-surface-500 block text-xs">{t('results.submittedAt')}</span>
+                          <span className="text-surface-300 text-xs">
                             {att.submittedAt ? new Date(att.submittedAt).toLocaleDateString() : 'N/A'}
                           </span>
                         </div>
@@ -861,7 +861,7 @@ export default function Results() {
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full text-left text-sm text-surface-300">
-                  <thead className="bg-surface-950/80 text-surface-400 uppercase text-xs">
+                  <thead className="bg-surface-950/80 text-surface-400 text-xs font-semibold">
                     <tr>
                       <th className="px-6 py-3.5">{t('results.examTitle')}</th>
                       <th className="px-6 py-3.5">{t('results.category')}</th>
@@ -915,7 +915,7 @@ export default function Results() {
                         <div>
                           <h3 className="font-bold text-surface-100 text-base leading-snug">{exam.title}</h3>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-[11px] font-semibold">
+                            <span className="px-2.5 py-0.5 rounded-full bg-teal-500/15 border border-teal-500/30 text-teal-300 text-xs font-semibold">
                               🏷️ {exam.categoryName || 'General'}
                             </span>
                           </div>
@@ -942,12 +942,12 @@ export default function Results() {
                       {/* Stats Grid Pill */}
                       <div className="grid grid-cols-2 gap-2 text-xs p-3 rounded-xl bg-surface-950/80 border border-surface-800">
                         <div>
-                          <span className="text-surface-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">{t('results.avgScore')}</span>
-                          <span className="font-extrabold text-primary-400 text-sm">{exam.average}%</span>
+                          <span className="text-surface-400 block text-xs font-medium mb-0.5">{t('results.avgScore')}</span>
+                          <span className="font-extrabold text-primary-400 text-sm tabular-nums">{exam.average}%</span>
                         </div>
                         <div>
-                          <span className="text-surface-400 block text-[10px] uppercase font-bold tracking-wider mb-0.5">{t('results.passRate')}</span>
-                          <span className="font-extrabold text-emerald-400 text-sm">
+                          <span className="text-surface-400 block text-xs font-medium mb-0.5">{t('results.passRate')}</span>
+                          <span className="font-extrabold text-emerald-400 text-sm tabular-nums">
                             {exam.passRate !== null ? `${exam.passRate}%` : 'N/A'}
                           </span>
                         </div>
@@ -1056,19 +1056,19 @@ export default function Results() {
                 {/* Score Summary Grid */}
                 <div className="grid grid-cols-3 gap-2 pt-2 border-t border-surface-800 text-center">
                   <div className="p-2 rounded-lg bg-surface-950/60 border border-surface-800/80">
-                    <div className="text-[10px] uppercase font-bold text-surface-500">{t('results.score')}</div>
-                    <div className="text-sm sm:text-base font-bold text-primary-400">
+                    <div className="text-xs font-medium text-surface-400">{t('results.score')}</div>
+                    <div className="text-sm sm:text-base font-bold text-primary-400 tabular-nums">
                       {attemptDetail.attempt?.score} / {attemptDetail.attempt?.totalMarks}
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-950/60 border border-surface-800/80">
-                    <div className="text-[10px] uppercase font-bold text-surface-500">{t('results.percentage')}</div>
-                    <div className={`text-sm sm:text-base font-bold ${attemptDetail.attempt?.passed ? 'text-success-400' : 'text-danger-400'}`}>
+                    <div className="text-xs font-medium text-surface-400">{t('results.percentage')}</div>
+                    <div className={`text-sm sm:text-base font-bold tabular-nums ${attemptDetail.attempt?.passed ? 'text-success-400' : 'text-danger-400'}`}>
                       {attemptDetail.attempt?.percentage}%
                     </div>
                   </div>
                   <div className="p-2 rounded-lg bg-surface-950/60 border border-surface-800/80 flex flex-col justify-center items-center">
-                    <div className="text-[10px] uppercase font-bold text-surface-500 mb-0.5">{t('results.status')}</div>
+                    <div className="text-xs font-medium text-surface-400 mb-0.5">{t('results.status')}</div>
                     {attemptDetail.attempt?.needsGrading ? (
                       <Badge variant="warning">{t('results.needsReview')}</Badge>
                     ) : attemptDetail.attempt?.passed ? (
@@ -1173,7 +1173,7 @@ export default function Results() {
                           <span className="w-7 h-7 rounded-lg bg-surface-800 text-surface-200 font-bold text-xs flex items-center justify-center">
                             Q{idx + 1}
                           </span>
-                          <Badge variant="default" className="text-[11px]">
+                          <Badge variant="default" className="text-xs">
                             {q.type === 'short_answer'
                               ? t('exams.shortAnswer')
                               : q.type === 'true_false'
@@ -1181,7 +1181,7 @@ export default function Results() {
                               : t('exams.mcqSingle')}
                           </Badge>
                         </div>
-                        <Badge variant="primary" className="text-[11px]">
+                        <Badge variant="primary" className="text-xs">
                           {q.marks} {t('exams.points')}
                         </Badge>
                       </div>
@@ -1218,7 +1218,7 @@ export default function Results() {
                                 <div className="text-sm break-words" dir="auto">
                                   {opt.text}
                                 </div>
-                                <div className="flex flex-wrap items-center gap-2 text-[11px]">
+                                <div className="flex flex-wrap items-center gap-2 text-xs">
                                   {isCorrectOpt && (
                                     <span className="inline-flex items-center gap-1 font-bold text-success-400 bg-success-950/60 px-2 py-0.5 rounded border border-success-800">
                                       {t('results.correctChoice')}

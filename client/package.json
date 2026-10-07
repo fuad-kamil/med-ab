@@ -8,11 +8,17 @@
     "build": "vite build",
     "i18n:check": "node src/scripts/check-i18n-keys.js",
     "check:buttons": "node src/scripts/check-buttons.js",
+    "check:typography": "node src/scripts/check-typography.js",
     "audit:ui": "node src/scripts/ui-audit.js",
     "lint": "oxlint",
     "preview": "vite preview"
   },
   "dependencies": {
+    "@fontsource-variable/inter": "^5.3.0",
+    "@fontsource-variable/noto-naskh-arabic": "^5.3.0",
+    "@fontsource-variable/noto-sans-arabic": "^5.3.0",
+    "@fontsource/amiri-quran": "^5.3.0",
+    "@fontsource/noto-sans-ethiopic": "^5.3.0",
     "@hookform/resolvers": "^5.9.1",
     "axios": "^1.20.0",
     "i18next": "^26.4.2",

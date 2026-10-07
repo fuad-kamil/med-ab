@@ -1033,7 +1033,7 @@ export default function StudentProfileModal({
                               <div dir="auto" className="font-bold text-surface-900 dark:text-surface-100">
                                 {record.examTitle}
                               </div>
-                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-300">
+                              <span className="inline-block mt-0.5 px-2 py-0.5 rounded text-xs font-semibold bg-surface-200 dark:bg-surface-800 text-surface-600 dark:text-surface-300">
                                 {record.categoryName}
                               </span>
                             </td>
@@ -1041,12 +1041,12 @@ export default function StudentProfileModal({
                             {/* Exam Link Status */}
                             <td className="p-3">
                               {record.examStatus === 'published' ? (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 dark:text-emerald-400">
                                   <LinkIcon className="w-3 h-3" />
                                   <span>{t('students.linkOpen') || 'Open'}</span>
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center gap-1 text-[11px] font-medium text-surface-400">
+                                <span className="inline-flex items-center gap-1 text-xs font-medium text-surface-400">
                                   <Link2Off className="w-3 h-3" />
                                   <span>{t('students.linkClosed') || 'Closed'}</span>
                                 </span>
@@ -1166,7 +1166,7 @@ export default function StudentProfileModal({
                           <div dir="auto" className="font-bold text-sm text-surface-900 dark:text-surface-100">
                             {record.examTitle}
                           </div>
-                          <span className="px-2 py-0.5 rounded text-[10px] font-semibold bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 shrink-0">
+                          <span className="px-2 py-0.5 rounded text-xs font-semibold bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 shrink-0">
                             {record.categoryName}
                           </span>
                         </div>
@@ -1174,7 +1174,7 @@ export default function StudentProfileModal({
                         {/* 2-column label/value grid */}
                         <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-surface-200/60 dark:border-surface-700/60">
                           <div>
-                            <span className="text-surface-400 block text-[11px]">{t('students.attemptStatus') || 'Attempt Status'}</span>
+                            <span className="text-surface-400 block text-xs">{t('students.attemptStatus') || 'Attempt Status'}</span>
                             {record.statusKey === 'not_taken' && (
                               <span className="font-medium text-surface-600 dark:text-surface-300">{t('students.notTaken') || 'Not Taken Yet'}</span>
                             )}
@@ -1192,7 +1192,7 @@ export default function StudentProfileModal({
                           </div>
 
                           <div>
-                            <span className="text-surface-400 block text-[11px]">{t('students.score') || 'Score'}</span>
+                            <span className="text-surface-400 block text-xs">{t('students.score') || 'Score'}</span>
                             <span className="font-semibold tabular-nums text-surface-900 dark:text-surface-100">
                               {record.score !== null ? `${record.score}/${record.totalMarks} (${record.percentage}%)` : '—'}
                             </span>
