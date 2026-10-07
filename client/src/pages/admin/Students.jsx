@@ -441,7 +441,7 @@ export default function Students() {
             <span>{t('students.addStudent') || 'Add Student'}</span>
           </Button>
 
-          {/* Announcement Button */}
+          {/* Single Announcement Button */}
           <Button
             variant="secondary"
             size="sm"
@@ -452,28 +452,12 @@ export default function Students() {
                 recipientsCount: pagination.total,
               })
             }
-            className="hidden sm:inline-flex gap-2 text-xs py-2.5"
+            className="gap-2 text-xs py-2.5"
             title={t('students.sendEmailAnnouncement')}
           >
             <Mail className="w-4 h-4 stroke-[1.75]" />
-            <span>{t('students.announcement') || 'Announcement'}</span>
+            <span className="hidden sm:inline">{t('students.announcement') || 'Announcement'}</span>
           </Button>
-
-          {/* Mobile Icon-Only Announcement button */}
-          <button
-            onClick={() =>
-              setEmailModalConfig({
-                targetType: 'all',
-                selectedStudentIds: [],
-                recipientsCount: pagination.total,
-              })
-            }
-            className="sm:hidden p-2.5 rounded-xl bg-surface-200 dark:bg-surface-800 text-surface-700 dark:text-surface-300 min-w-[42px] min-h-[42px] flex items-center justify-center cursor-pointer"
-            aria-label="Send Email Announcement"
-            title={t('students.sendEmailAnnouncement')}
-          >
-            <Mail className="w-4.5 h-4.5 stroke-[1.75]" />
-          </button>
 
           {/* "More" (⋯) Dropdown Menu */}
           <div className="relative" ref={headerMenuRef}>
