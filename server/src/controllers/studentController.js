@@ -44,13 +44,10 @@ export async function loginAndStartExam(req, res) {
     }
   }
 
-  // 3. Find student by studentId (forgiving matching & normalization)
+  // 3. Find student by studentId (exact match using normalized canonicalId)
   const canonicalId = normalizeStudentId(studentId);
   const student = await User.findOne({
-    $or: [
-      { studentId: canonicalId },
-      { studentId: { $regex: `^${studentId.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' } },
-    ],
+    studentId: canonicalId,
     role: 'student',
   });
   if (!student) {
@@ -278,25 +275,30 @@ export async function saveProgress(req, res) {
   const { userId, examId } = req.user;
   const { answers, flaggedQuestions, tabSwitchCount } = req.body;
 
-  const attempt = await Attempt.findOne({ examId, studentId: userId });
+  const now = new Date();
+
+  const attempt = await Attempt.findOne({ examId, studentId: userId })
+    .select('status deadline')
+    .lean();
+
   if (!attempt) {
     throw new ApiError(404, 'Attempt not found');
-  }
-
-  const exam = await Exam.findById(examId).lean();
-  if (exam && exam.status === 'closed') {
-    throw new ApiError(403, 'This exam has been closed by the Ustaz.');
   }
 
   if (attempt.status !== 'in_progress') {
     throw new ApiError(400, 'Cannot save progress on completed exam');
   }
 
-  if (attempt.isExpired()) {
-    attempt.status = 'auto_submitted';
-    attempt.submittedAt = attempt.deadline;
-    await gradeAttempt(attempt, examId);
-    await attempt.save();
+  if (now > attempt.deadline) {
+    await Attempt.updateOne(
+      { _id: attempt._id, status: 'in_progress' },
+      { $set: { status: 'auto_submitted', submittedAt: attempt.deadline } }
+    );
+    const fullAttempt = await Attempt.findById(attempt._id);
+    if (fullAttempt) {
+      await gradeAttempt(fullAttempt, examId);
+      await fullAttempt.save();
+    }
 
     return res.status(400).json({
       error: 'Time expired',
@@ -304,23 +306,28 @@ export async function saveProgress(req, res) {
     });
   }
 
+  const updateFields = {};
   if (answers && typeof answers === 'object') {
     for (const [qId, val] of Object.entries(answers)) {
-      attempt.answers.set(qId, val);
+      updateFields[`answers.${qId}`] = val;
     }
   }
-
   if (Array.isArray(flaggedQuestions)) {
-    attempt.flaggedQuestions = flaggedQuestions;
+    updateFields.flaggedQuestions = flaggedQuestions;
   }
-
   if (typeof tabSwitchCount === 'number') {
-    attempt.tabSwitchCount = tabSwitchCount;
+    updateFields.tabSwitchCount = tabSwitchCount;
   }
 
-  await attempt.save();
+  if (Object.keys(updateFields).length > 0) {
+    await Attempt.updateOne(
+      { _id: attempt._id, status: 'in_progress', deadline: { $gt: now } },
+      { $set: updateFields }
+    );
+  }
 
-  const remainingSeconds = Math.max(0, Math.floor(attempt.remainingMs() / 1000));
+  const remainingMs = Math.max(0, attempt.deadline.getTime() - Date.now());
+  const remainingSeconds = Math.floor(remainingMs / 1000);
   res.json({ success: true, remainingSeconds });
 }
 

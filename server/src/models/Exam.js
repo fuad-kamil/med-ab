@@ -70,13 +70,52 @@ const examSchema = new mongoose.Schema(
       enum: ['en', 'am', 'ar'],
       default: 'en',
     },
+    subject: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    instructions: {
+      type: String,
+      trim: true,
+      default: '',
+    },
+    requireFullscreen: {
+      type: Boolean,
+      default: false,
+    },
+    preventTabSwitch: {
+      type: Boolean,
+      default: false,
+    },
+    maxTabSwitches: {
+      type: Number,
+      default: 0,
+    },
+    startAt: {
+      type: Date,
+      default: null,
+    },
+    endAt: {
+      type: Date,
+      default: null,
+    },
   },
   { timestamps: true }
 );
 
+examSchema.methods.isWithinWindow = function () {
+  const now = new Date();
+  if (this.startAt && now < this.startAt) return false;
+  if (this.endAt && now > this.endAt) return false;
+  return true;
+};
+
 examSchema.index({ accessToken: 1 }, { unique: true });
 examSchema.index({ status: 1 });
 examSchema.index({ categoryId: 1 });
+examSchema.index({ status: 1, createdAt: -1 });
+examSchema.index({ categoryId: 1, createdAt: -1 });
 
 examSchema.methods.regenerateToken = function () {
   this.accessToken = crypto.randomBytes(24).toString('hex');

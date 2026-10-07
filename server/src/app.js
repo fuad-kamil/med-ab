@@ -1,6 +1,7 @@
 import express from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
+import compression from 'compression';
 import { env } from './config/env.js';
 import { globalLimiter } from './middleware/rateLimiter.js';
 import { errorHandler } from './middleware/errorHandler.js';
@@ -18,6 +19,8 @@ import emailRoutes from './routes/email.js';
 import aiRoutes from './routes/ai.js';
 
 const app = express();
+
+app.use(compression());
 
 // Security
 app.use(helmet({ referrerPolicy: { policy: 'no-referrer' } }));

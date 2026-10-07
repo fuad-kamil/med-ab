@@ -45,9 +45,9 @@ describe('User Controller Tests', () => {
       expect(User.find).toHaveBeenCalledWith({
         role: 'student',
         $or: [
-          { fullName: { $regex: 'Abebe', $options: 'i' } },
-          { studentId: { $regex: 'Abebe', $options: 'i' } },
-          { email: { $regex: 'Abebe', $options: 'i' } },
+          { fullName: { $regex: '^Abebe', $options: 'i' } },
+          { studentId: { $regex: '^Abebe', $options: 'i' } },
+          { email: { $regex: '^Abebe', $options: 'i' } },
         ],
       });
 

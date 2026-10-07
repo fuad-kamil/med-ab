@@ -7,6 +7,7 @@ import {
   getAttemptDetail,
   gradeQuestion,
   resetAttempt,
+  allowRetakeAttempt,
   downloadAttemptDocx,
   deleteExamResults,
   deleteSelectedAttempts,
@@ -36,6 +37,7 @@ router.get('/attempt/:attemptId', asyncHandler(getAttemptDetail));
 router.get('/attempt/:attemptId/download-doc', asyncHandler(downloadAttemptDocx));
 router.post('/attempt/:attemptId/email', asyncHandler(sendStudentResultEmail));
 router.post('/attempt/:attemptId/grade/:questionId', asyncHandler(gradeQuestion));
+router.post('/attempt/:attemptId/allow-retake', asyncHandler(allowRetakeAttempt));
 router.delete('/attempt/:attemptId', asyncHandler(resetAttempt));
 
 export default router;

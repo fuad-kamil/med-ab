@@ -1299,3 +1299,16 @@ export async function downloadAttemptDocx(req, res) {
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.send(buffer);
 }
+
+export async function allowRetakeAttempt(req, res) {
+  const { attemptId } = req.params;
+  const attempt = await Attempt.findById(attemptId);
+  if (!attempt) {
+    throw new ApiError(404, 'Attempt not found');
+  }
+
+  attempt.retakeAllowed = true;
+  await attempt.save();
+
+  res.json({ success: true, message: 'Retake allowed for student', attempt });
+}

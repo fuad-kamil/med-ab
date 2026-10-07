@@ -60,5 +60,6 @@ const examSnapshotSchema = new mongoose.Schema(
 );
 
 examSnapshotSchema.index({ examId: 1, deletedAt: 1 });
+examSnapshotSchema.index({ deletedAt: 1, categoryId: 1 });
 
 export const ExamSnapshot = mongoose.model('ExamSnapshot', examSnapshotSchema);

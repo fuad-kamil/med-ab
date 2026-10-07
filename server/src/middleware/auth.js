@@ -3,6 +3,19 @@ import { env } from '../config/env.js';
 import { ApiError } from './errorHandler.js';
 import { User } from '../models/User.js';
 
+const tokenVersionCache = new Map();
+const CACHE_TTL_MS = 15000;
+
+export function invalidateTokenVersionCache(userId) {
+  if (!userId) return;
+  const prefix = `${userId}:`;
+  for (const key of tokenVersionCache.keys()) {
+    if (key.startsWith(prefix)) {
+      tokenVersionCache.delete(key);
+    }
+  }
+}
+
 // Verify JWT and attach user info to req
 export async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -15,9 +28,24 @@ export async function authenticate(req, res, next) {
     const payload = jwt.verify(token, env.JWT_SECRET);
     const userId = payload.userId || payload.id || payload._id;
 
-    // Check session tokenVersion for session invalidation
+    // Check session tokenVersion for session invalidation (with 15s TTL in-memory cache)
     if (typeof payload.tokenVersion === 'number') {
-      const user = await User.findById(userId).select('tokenVersion isActive').lean();
+      const cacheKey = `${userId}:${payload.tokenVersion}`;
+      const cached = tokenVersionCache.get(cacheKey);
+      const now = Date.now();
+      let user;
+
+      if (cached && cached.expiresAt > now) {
+        user = cached.user;
+      } else {
+        user = await User.findById(userId).select('tokenVersion isActive').lean();
+        if (user && user.isActive && (user.tokenVersion || 0) === payload.tokenVersion) {
+          tokenVersionCache.set(cacheKey, { user, expiresAt: now + CACHE_TTL_MS });
+        } else {
+          tokenVersionCache.delete(cacheKey);
+        }
+      }
+
       if (!user || !user.isActive || (user.tokenVersion || 0) !== payload.tokenVersion) {
         return next(new ApiError(401, 'TOKEN_EXPIRED'));
       }

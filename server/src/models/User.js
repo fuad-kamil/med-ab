@@ -68,6 +68,8 @@ const userSchema = new mongoose.Schema(
 
 // Unique sparse index — only students have studentId
 userSchema.index({ studentId: 1 }, { unique: true, sparse: true });
+userSchema.index({ role: 1, isActive: 1 });
+userSchema.index({ role: 1, studentId: 1 });
 userSchema.index({ categoryIds: 1 });
 userSchema.index({ gender: 1 });
 

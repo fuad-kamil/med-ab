@@ -302,7 +302,7 @@ export default function StudentProfileModal({
     if (!retakeTarget) return;
     setActionLoading(true);
     try {
-      await api.post(`/api/attempts/${retakeTarget.attemptId}/allow-retake`);
+      await api.post(`/api/results/attempt/${retakeTarget.attemptId}/allow-retake`);
       profileCache.delete(studentId);
       await fetchProfile(studentId, true);
       setRetakeTarget(null);
@@ -319,7 +319,7 @@ export default function StudentProfileModal({
     if (!resetAttemptTarget) return;
     setActionLoading(true);
     try {
-      await api.delete(`/api/attempts/${resetAttemptTarget.attemptId}`);
+      await api.delete(`/api/results/attempt/${resetAttemptTarget.attemptId}`);
       profileCache.delete(studentId);
       await fetchProfile(studentId, true);
       setResetAttemptTarget(null);

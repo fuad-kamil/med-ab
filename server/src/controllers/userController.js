@@ -32,10 +32,11 @@ export async function listUsers(req, res) {
     filter.gender = gender;
   }
   if (search) {
+    const escaped = String(search).trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     filter.$or = [
-      { fullName: { $regex: search, $options: 'i' } },
-      { studentId: { $regex: search, $options: 'i' } },
-      { email: { $regex: search, $options: 'i' } },
+      { fullName: { $regex: `^${escaped}`, $options: 'i' } },
+      { studentId: { $regex: `^${escaped}`, $options: 'i' } },
+      { email: { $regex: `^${escaped}`, $options: 'i' } },
     ];
   }
 

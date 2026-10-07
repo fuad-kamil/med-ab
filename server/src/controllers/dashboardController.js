@@ -86,12 +86,12 @@ export async function getAdminDashboard(req, res) {
     .lean();
 
   const recentSubmissions = recentAttempts.map((a) => {
-    const totalMaxPoints = a.totalMaxPoints || a.totalMarks || 0;
-    const scoreEarned = a.scoreEarned ?? a.score ?? 0;
+    const totalMaxPoints = a.totalMarks || 0;
+    const scoreEarned = a.score || 0;
     const percentage =
-      totalMaxPoints > 0 ? Math.round((scoreEarned / totalMaxPoints) * 100) : a.percentage || 0;
+      totalMaxPoints > 0 ? Math.round((scoreEarned / totalMaxPoints) * 100) : 0;
     const passMark = a.examId?.passMark;
-    const passed = a.passed ?? (passMark !== null && passMark !== undefined ? percentage >= passMark : true);
+    const passed = passMark !== null && passMark !== undefined ? percentage >= passMark : percentage >= 50;
 
     return {
       _id: a._id,

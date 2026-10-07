@@ -11,6 +11,13 @@ export const createExamSchema = z.object({
   closeAction: z.enum(['block_new', 'force_submit']).optional().default('block_new'),
   categoryId: z.string().nullable().optional().default(null),
   language: z.enum(['en', 'am', 'ar']).optional().default('en'),
+  subject: z.string().trim().optional().default(''),
+  instructions: z.string().trim().optional().default(''),
+  requireFullscreen: z.boolean().optional().default(false),
+  preventTabSwitch: z.boolean().optional().default(false),
+  maxTabSwitches: z.number().min(0).optional().default(0),
+  startAt: z.string().datetime().nullable().optional().default(null),
+  endAt: z.string().datetime().nullable().optional().default(null),
 });
 
 export const updateExamSchema = createExamSchema.partial();

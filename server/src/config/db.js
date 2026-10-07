@@ -3,8 +3,13 @@ import { env } from './env.js';
 
 export async function connectDB() {
   try {
+    const isProd = env.NODE_ENV === 'production';
     await mongoose.connect(env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 10000,
+      maxPoolSize: 20,
+      minPoolSize: 2,
+      serverSelectionTimeoutMS: 5000,
+      socketTimeoutMS: 45000,
+      autoIndex: !isProd,
     });
     console.log('MongoDB connected successfully');
   } catch (err) {

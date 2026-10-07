@@ -8,11 +8,13 @@
     "start": "node index.js",
     "test": "vitest run",
     "seed": "node src/scripts/seed.js",
+    "db:indexes": "node src/scripts/sync-indexes.js",
     "migrate:categories": "node src/scripts/migrate-categories.js",
     "migrate:snapshots": "node src/scripts/migrate-snapshots.js"
   },
   "dependencies": {
     "bcrypt": "^5.1.1",
+    "compression": "^1.8.2",
     "cors": "^2.8.5",
     "csv-parse": "^5.5.6",
     "docx": "^9.8.1",

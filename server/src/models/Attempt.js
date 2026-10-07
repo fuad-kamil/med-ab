@@ -139,8 +139,12 @@ attemptSchema.index(
   }
 );
 
-attemptSchema.index({ studentId: 1 });
+attemptSchema.index({ studentId: 1, examId: 1 });
 attemptSchema.index({ examId: 1, status: 1 });
+attemptSchema.index({ examId: 1, submittedAt: -1 });
+attemptSchema.index({ status: 1, submittedAt: -1 });
+attemptSchema.index({ snapshotId: 1 });
+attemptSchema.index({ examId: 1, examDeleted: 1 });
 
 attemptSchema.methods.isExpired = function () {
   return new Date() > this.deadline;
