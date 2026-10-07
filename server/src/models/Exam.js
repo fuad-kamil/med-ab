@@ -104,11 +104,16 @@ const examSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-examSchema.methods.isWithinWindow = function () {
+export function isExamWithinWindow(exam) {
+  if (!exam) return false;
   const now = new Date();
-  if (this.startAt && now < this.startAt) return false;
-  if (this.endAt && now > this.endAt) return false;
+  if (exam.startAt && now < new Date(exam.startAt)) return false;
+  if (exam.endAt && now > new Date(exam.endAt)) return false;
   return true;
+}
+
+examSchema.methods.isWithinWindow = function () {
+  return isExamWithinWindow(this);
 };
 
 examSchema.index({ accessToken: 1 }, { unique: true });

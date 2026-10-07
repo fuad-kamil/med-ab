@@ -1,5 +1,5 @@
 import { User } from '../models/User.js';
-import { Exam } from '../models/Exam.js';
+import { Exam, isExamWithinWindow } from '../models/Exam.js';
 import { signAdminToken, signStudentExamToken } from '../middleware/auth.js';
 import { ApiError } from '../middleware/errorHandler.js';
 
@@ -186,7 +186,8 @@ export async function studentExamLogin(req, res) {
     throw new ApiError(403, 'This exam is not yet available');
   }
 
-  if (!exam.isWithinWindow()) {
+  const inWindow = typeof exam.isWithinWindow === 'function' ? exam.isWithinWindow() : isExamWithinWindow(exam);
+  if (!inWindow) {
     throw new ApiError(403, 'This exam is outside its scheduled time window');
   }
 

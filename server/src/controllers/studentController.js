@@ -1,6 +1,6 @@
 import bcrypt from 'bcrypt';
 import { User } from '../models/User.js';
-import { Exam } from '../models/Exam.js';
+import { Exam, isExamWithinWindow } from '../models/Exam.js';
 import { Question } from '../models/Question.js';
 import { Attempt } from '../models/Attempt.js';
 import { ApiError } from '../middleware/errorHandler.js';
@@ -34,7 +34,8 @@ export async function loginAndStartExam(req, res) {
     throw new ApiError(403, `This exam is currently ${exam.status}. Access is closed.`);
   }
 
-  if (!exam.isWithinWindow()) {
+  const inWindow = typeof exam.isWithinWindow === 'function' ? exam.isWithinWindow() : isExamWithinWindow(exam);
+  if (!inWindow) {
     const now = new Date();
     if (exam.startAt && now < exam.startAt) {
       throw new ApiError(403, `This exam has not started yet. Starts at ${exam.startAt.toLocaleString()}`);
