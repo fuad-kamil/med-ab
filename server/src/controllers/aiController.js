@@ -315,9 +315,54 @@ USER RAW TEXT DATA:
 """
 ${rawText}
 """`;
+
+    let text = '';
+    const candidateModels = ['gemini-flash-latest', 'gemini-2.5-flash', 'gemini-1.5-flash', 'gemini-pro'];
+
+    for (const model of candidateModels) {
+      try {
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+        const apiRes = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.1,
+              responseMimeType: 'application/json',
+            },
+          }),
+        });
+
+        if (apiRes.ok) {
+          const data = await apiRes.json();
+          text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          if (text) break;
+        }
+      } catch (e) {
+        // try next model
+      }
     }
 
-    // Process & compute warnings for each question card
+    let parsedJson = null;
+    if (text) {
+      try {
+        const cleanJsonStr = text.replace(/^```[a-z]*\n?/gi, '').replace(/\n?```$/g, '').trim();
+        parsedJson = JSON.parse(cleanJsonStr);
+      } catch (e) {
+        console.warn('JSON parse error from Gemini:', e.message);
+      }
+    }
+
+    let rawQuestions = Array.isArray(parsedJson?.questions)
+      ? parsedJson.questions
+      : Array.isArray(parsedJson)
+      ? parsedJson
+      : null;
+
+    if (!rawQuestions || rawQuestions.length === 0) {
+      rawQuestions = parseRawTextFallback(rawText);
+    }
     const questions = rawQuestions.map((q, idx) => {
       const options = (q.options || []).map((opt, oIdx) => ({
         id: opt.id || `opt_${idx}_${oIdx}_${Math.random().toString(36).substr(2, 5)}`,
@@ -432,84 +477,6 @@ function parseRawTextFallback(rawText) {
           if (optText.includes('*') || /\((?:correct|right|ትክክል|صح|صحيح)\)/i.test(optText)) {
             isCorrect = true;
             optText = optText.replace(/\*/g, '').replace(/\((?:correct|right|ትክክል|صح|صحيح)\)/gi, '').trim();
-          }
-          currentQ.options.push({ text: optText, isCorrect });
-        });
-      }
-      return;
-    }
-
-    const optMatch = line.match(optPrefixRegex);
-    if (optMatch && currentQ) {
-      let optText = optMatch[2] || optMatch[1];
-      let isCorrect = false;
-
-      if (optText.includes('*') || /\((?:correct|right|ትክክል|صح|صحيح)\)/i.test(optText)) {
-        isCorrect = true;
-        optText = optText.replace(/\*/g, '').replace(/\((?:correct|right|ትክክል|صح|صحيح)\)/gi, '').trim();
-      }
-
-      currentQ.options.push({ text: optText.trim(), isCorrect });
-    } else if (currentQ && currentQ.options.length === 0) {
-      currentQ.text += ' ' + line;
-    }
-  });
-
-  if (currentQ) parsedQuestions.push(currentQ);
-
-  return parsedQuestions.map((q, idx) => {
-    let options = (q.options || []).map((o, oIdx) => ({
-      id: `opt_${idx}_${oIdx}_${Math.random().toString(36).substr(2, 4)}`,
-      text: o.text,
-      label: String.fromCharCode(65 + oIdx),
-      isCorrect: o.isCorrect,
-    }));
-
-    if (q.declaredAnswer) {
-      const decStr = q.declaredAnswer.trim().toLowerCase();
-      const letterMap = { a: 0, b: 1, c: 2, d: 3, e: 4, ሀ: 0, ለ: 1, ሐ: 2, መ: 3, ሠ: 4, أ: 0, ب: 1, ج: 2, د: 3, 1: 0, 2: 1, 3: 2, 4: 3 };
-      const matchedIdx = letterMap[decStr];
-
-      if (matchedIdx !== undefined && options[matchedIdx]) {
-        options[matchedIdx].isCorrect = true;
-      } else {
-        const textMatch = options.find((o) => o.text.trim().toLowerCase() === decStr || o.text.trim().toLowerCase().includes(decStr));
-        if (textMatch) textMatch.isCorrect = true;
-      }
-    }
-
-    const correct = options.find((o) => o.isCorrect);
-    const warnings = [];
-
-    if (options.length === 0) {
-      q.type = 'short_answer';
-    } else {
-      if (!correct) warnings.push('noCorrectAnswer');
-      if (options.length < 2) warnings.push('fewOptions');
-    }
-
-    return {
-      id: `q_${idx}_${Date.now()}_${Math.random().toString(36).substr(2, 4)}`,
-      text: q.text,
-      type: q.type,
-      marks: 1,
-      options,
-      correctAnswer: correct ? correct.id : (options[0]?.id || ''),
-      explanation: '',
-      warnings,
-      selected: warnings.length === 0,
-    };
-  });
-}
-
-// Backward-compatible endpoint (POST /api/ai/generate-questions)
-export async function generateQuestions(req, res) {
-  const { mode } = req.body;
-  if (mode === 'format') {
-    return formatQuestions(req, res);
-  }
-  return chat(req, res);
-}/gi, '').trim();
           }
           currentQ.options.push({ text: optText, isCorrect });
         });
