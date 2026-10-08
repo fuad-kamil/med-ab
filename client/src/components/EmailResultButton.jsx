@@ -3,6 +3,9 @@ import { useTranslation } from 'react-i18next';
 import api, { extractError } from '../api/client';
 import { Mail, CheckCheck, AlertCircle, Loader2, RotateCcw } from 'lucide-react';
 import { formatDateTime } from '../utils/formatters';
+import Button from './Button';
+import { StatusChip } from './Common';
+
 
 export default function EmailResultButton({
   attempt,
