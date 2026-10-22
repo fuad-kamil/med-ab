@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import api from '../../api/client';
+import api, { extractError } from '../../api/client';
 import { Button } from '../../components/Button';
 import PreferencesControls from '../../components/PreferencesControls';
 import AccountInUseScreen from '../../components/AccountInUseScreen';
@@ -135,7 +135,8 @@ export default function StudentLogin() {
         return;
       }
 
-      setError(err.response?.data?.error || t('errors.authFailed'));
+      const { message } = extractError(err, t('errors.authFailed'));
+      setError(message);
     } finally {
       setSubmitting(false);
     }

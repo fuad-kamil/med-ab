@@ -88,7 +88,12 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401) {
       const currentPath = window.location.pathname;
-      if (!currentPath.includes('/login') && !currentPath.startsWith('/exam/')) {
+      const requestUrl = error.config?.url || '';
+      const isStudentRequest = requestUrl.includes('/student') || requestUrl.includes('/exam');
+      const isStudentPage = currentPath === '/exam' || currentPath.startsWith('/exam');
+
+      // Only redirect to admin login if it is an admin route/request and not already on a login page
+      if (!isStudentRequest && !isStudentPage && !currentPath.includes('/login')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
         window.location.href = '/admin/login';
