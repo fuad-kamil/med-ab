@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import crypto from 'crypto';
 
 const userSchema = new mongoose.Schema(
   {
@@ -62,6 +63,25 @@ const userSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    activeSession: {
+      sessionId: { type: String, default: null },
+      deviceKeyHash: { type: String, default: null },
+      deviceLabel: { type: String, default: null },
+      ipMasked: { type: String, default: null },
+      examId: { type: mongoose.Schema.Types.ObjectId, ref: 'Exam', default: null },
+      attemptId: { type: mongoose.Schema.Types.ObjectId, ref: 'Attempt', default: null },
+      startedAt: { type: Date, default: null },
+      lastSeenAt: { type: Date, default: null },
+      leaseExpiresAt: { type: Date, default: null },
+      status: { type: String, enum: ['active', 'released'], default: null },
+      releasedAt: { type: Date, default: null },
+      releaseReason: {
+        type: String,
+        enum: ['logout', 'submit', 'expired', 'admin', 'forced', 'replaced'],
+        default: null,
+      },
+      blockedCount: { type: Number, default: 0 },
+    },
   },
   { timestamps: true }
 );
@@ -76,6 +96,11 @@ userSchema.index({ gender: 1 });
 // Hash password helper (used by controllers, not a pre-save hook so we control when)
 userSchema.statics.hashPassword = async function (plaintext) {
   return bcrypt.hash(plaintext, 12);
+};
+
+// Hash a device key (sha256, hex)
+userSchema.statics.hashDeviceKey = function (deviceKey) {
+  return crypto.createHash('sha256').update(String(deviceKey)).digest('hex');
 };
 
 userSchema.methods.comparePassword = async function (plaintext) {
@@ -94,6 +119,11 @@ userSchema.methods.toSafeJSON = function () {
   delete obj.failedLoginAttempts;
   delete obj.lockedUntil;
   delete obj.__v;
+  // Remove sensitive session internals from public-facing JSON
+  if (obj.activeSession) {
+    delete obj.activeSession.deviceKeyHash;
+    delete obj.activeSession.ipMasked;
+  }
   return obj;
 };
 

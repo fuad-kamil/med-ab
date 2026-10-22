@@ -771,5 +771,32 @@
   "admin": {
     "collapseSidebar": "ሳይድባር አጣጥፍ",
     "expandSidebar": "ሳይድባር ዘርጋ"
+  },
+  "session": {
+    "accountInUseTitle": "አካውንቱ አገልግሎት ላይ ነው",
+    "accountInUseBody": "ይህ የተማሪ አካውንት በአሁኑ ሰዓት በሌላ መሳሪያ ላይ ገብቷል።",
+    "accountInUsePaused": "መጠበቁ ቆሟል። ዝግጁ ሲሆኑ አሁን ሞክር የሚለውን ይጫኑ።",
+    "accountInUseCountdown": "በ{{seconds}} ሰከንድ ውስጥ ተገኝነት ይፈተሻል...",
+    "tryNow": "አሁን ሞክር",
+    "blockedToastMessage": "የእርስዎ ፈተና ክፍለ-ጊዜ በነበረበት ወቅት ሌላ መሳሪያ በመታወቂያዎ ለመግባት ሞክሯል።",
+    "signOutTitle": "ውጣ",
+    "signOutConfirm": "እርግጠኛ ነዎት መውጣት ይፈልጋሉ? የመለሷቸው መልሶች ተቀምጠዋል፣ ጊዜው ከማለቁ በፊት ተመልሰው መግባት ይችላሉ።",
+    "signOutConfirmBtn": "ውጣ",
+    "stayInExam": "በፈተናው ውስጥ ቆይ",
+    "signingOut": "በመውጣት ላይ...",
+    "signOutTooltip": "ከዚህ መሳሪያ ውጣ",
+    "replacedTitle": "ክፍለ-ጊዜው ተቋርጧል",
+    "replacedMessage": "ይህ አካውንት ከሌላ መሳሪያ ስለገባ የፈተና ክፍለ-ጊዜዎ ተቋርጧል።",
+    "singleDeviceSignIn": "በአንድ መሳሪያ ብቻ መግቢያ",
+    "singleDeviceSignInDesc": "በርካታ መሳሪያዎች በአንድ ጊዜ በአንድ ተማሪ መታወቂያ እንዳይገቡ ያግዳል",
+    "leaseSeconds": "የክፍለ-ጊዜ ቆይታ (ሰከንዶች)",
+    "activeSession": "ንቁ ክፍለ-ጊዜ",
+    "noActiveSession": "ምንም ንቁ ክፍለ-ጊዜ የለም",
+    "forceRelease": "ክፍለ-ጊዜውን ልቀቅ",
+    "releaseSuccess": "ክፍለ-ጊዜው በተሳካ ሁኔታ ተለቋል",
+    "releaseConfirm": "እርግጠኛ ነዎት ለዚህ ተማሪ ንቁ ክፍለ-ጊዜውን መልቀቅ ይፈልጋሉ? ይህም ወዲያውኑ በአዲስ መሳሪያ ላይ እንዲገቡ ያስችላቸዋል።",
+    "releasing": "በመልቀቅ ላይ...",
+    "online": "በመስመር ላይ",
+    "idle": "ዝምተኛ"
   }
 }

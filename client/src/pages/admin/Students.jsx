@@ -866,16 +866,26 @@ export default function Students() {
 
                         {/* Status (Dot + Text) */}
                         <td className="py-3 px-3.5">
-                          <span
-                            className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
-                              student.isActive
-                                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                                : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
-                            }`}
-                          >
-                            <span className={`w-1.5 h-1.5 rounded-full ${student.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
-                            <span>{student.isActive ? t('common.active') || 'Active' : t('common.inactive') || 'Inactive'}</span>
-                          </span>
+                          <div className="flex items-center gap-1.5 flex-wrap">
+                            <span
+                              className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold ${
+                                student.isActive
+                                  ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                                  : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                              }`}
+                            >
+                              <span className={`w-1.5 h-1.5 rounded-full ${student.isActive ? 'bg-emerald-500' : 'bg-rose-500'}`} />
+                              <span>{student.isActive ? t('common.active') || 'Active' : t('common.inactive') || 'Inactive'}</span>
+                            </span>
+                            {student.activeSession?.status === 'active' &&
+                              student.activeSession?.leasedUntil &&
+                              new Date(student.activeSession.leasedUntil) > new Date() && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                                  <span>{t('session.online') || 'Online'}</span>
+                                </span>
+                            )}
+                          </div>
                         </td>
 
                         {/* Joined Date (Hidden below 1024px) */}
@@ -953,6 +963,33 @@ export default function Students() {
                                     <KeyRound className="w-3.5 h-3.5 text-amber-500 stroke-[1.75]" />
                                     <span>{t('students.resetPassword')}</span>
                                   </button>
+
+                                  {student.activeSession?.status === 'active' &&
+                                    student.activeSession?.leasedUntil &&
+                                    new Date(student.activeSession.leasedUntil) > new Date() && (
+                                      <button
+                                        onClick={async () => {
+                                          setRowMenuOpenId(null);
+                                          try {
+                                            await api.post(`/api/users/${student._id}/release-session`);
+                                            setToast({
+                                              message: t('session.releaseSuccess') || 'Session released successfully',
+                                              type: 'success',
+                                            });
+                                            fetchStudents();
+                                          } catch (err) {
+                                            setToast({
+                                              message: err.response?.data?.error || 'Failed to release session',
+                                              type: 'error',
+                                            });
+                                          }
+                                        }}
+                                        className="w-full text-left px-3 py-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:bg-surface-100 dark:hover:bg-surface-700/60 flex items-center gap-2 cursor-pointer transition-colors"
+                                      >
+                                        <RefreshCw className="w-3.5 h-3.5 stroke-[1.75]" />
+                                        <span>{t('session.forceRelease') || 'Release Session'}</span>
+                                      </button>
+                                  )}
 
                                   <button
                                     onClick={() => {
@@ -1080,15 +1117,25 @@ export default function Students() {
                       </div>
                     </div>
 
-                    <span
-                      className={`px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 ${
-                        student.isActive
-                          ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
-                          : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
-                      }`}
-                    >
-                      {student.isActive ? 'Active' : 'Inactive'}
-                    </span>
+                    <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                      <span
+                        className={`px-2 py-0.5 rounded-full text-xs font-semibold shrink-0 ${
+                          student.isActive
+                            ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30'
+                            : 'bg-rose-500/15 text-rose-600 dark:text-rose-400 border border-rose-500/30'
+                        }`}
+                      >
+                        {student.isActive ? 'Active' : 'Inactive'}
+                      </span>
+                      {student.activeSession?.status === 'active' &&
+                        student.activeSession?.leasedUntil &&
+                        new Date(student.activeSession.leasedUntil) > new Date() && (
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            <span>{t('session.online') || 'Online'}</span>
+                          </span>
+                      )}
+                    </div>
                   </div>
 
                   {/* 2-column label/value grid */}
@@ -1172,7 +1219,28 @@ export default function Students() {
                             danger: true,
                             onClick: () => setDeleteTarget(student),
                           },
-                        ]}
+                          student.activeSession?.status === 'active' &&
+                            student.activeSession?.leasedUntil &&
+                            new Date(student.activeSession.leasedUntil) > new Date() && {
+                              label: t('session.forceRelease') || 'Release Session',
+                              icon: RefreshCw,
+                              onClick: async () => {
+                                try {
+                                  await api.post(`/api/users/${student._id}/release-session`);
+                                  setToast({
+                                    message: t('session.releaseSuccess') || 'Session released successfully',
+                                    type: 'success',
+                                  });
+                                  fetchStudents();
+                                } catch (err) {
+                                  setToast({
+                                    message: err.response?.data?.error || 'Failed to release session',
+                                    type: 'error',
+                                  });
+                                }
+                              },
+                            },
+                        ].filter(Boolean)}
                       />
                     </ActionRow>
                   </div>

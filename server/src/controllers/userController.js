@@ -5,6 +5,8 @@ import { Exam } from '../models/Exam.js';
 import { Attempt } from '../models/Attempt.js';
 import { getNextStudentId, reserveStudentIdBlock } from '../models/Counter.js';
 import { ApiError } from '../middleware/errorHandler.js';
+import { releaseSession, logSessionEvent } from '../services/sessionService.js';
+import { invalidateSessionCache } from '../middleware/auth.js';
 
 // Generate a readable random password
 function generatePassword(length = 8) {
@@ -456,5 +458,35 @@ export async function getStudentDetails(req, res) {
       averagePercentage,
     },
     exams: examRecords,
+  });
+}
+
+// Admin: force-release a student session
+export async function releaseStudentSession(req, res) {
+  const { id } = req.params;
+
+  const student = await User.findById(id).select('activeSession studentId fullName role');
+  if (!student || student.role !== 'student') {
+    throw new ApiError(404, 'Student not found');
+  }
+
+  const sid = student.activeSession?.sessionId;
+  if (!sid || student.activeSession?.status !== 'active') {
+    return res.json({ ok: true, message: 'No active session to release.' });
+  }
+
+  await releaseSession(id, sid, 'admin');
+  invalidateSessionCache(id);
+
+  await logSessionEvent({
+    studentId: id,
+    type: 'admin_release',
+    deviceLabel: null,
+    ipMasked: null,
+  }).catch(() => {});
+
+  res.json({
+    ok: true,
+    message: `Session released for ${student.fullName} (${student.studentId}). They can sign in again immediately.`,
   });
 }

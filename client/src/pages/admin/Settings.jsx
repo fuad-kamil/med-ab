@@ -103,6 +103,19 @@ export default function Settings() {
   const [emailConfiguredStatus, setEmailConfiguredStatus] = useState(true);
 
   // ------------------------------------------------------------------
+  // 4b. Exam Security State
+  // ------------------------------------------------------------------
+  const [examSecurityInitial, setExamSecurityInitial] = useState({
+    singleDeviceSignIn: true,
+    leaseSeconds: 90,
+  });
+  const [examSecurityForm, setExamSecurityForm] = useState({
+    singleDeviceSignIn: true,
+    leaseSeconds: 90,
+  });
+  const [examSecurityLoading, setExamSecurityLoading] = useState(false);
+
+  // ------------------------------------------------------------------
   // 5. Data & Backup State
   // ------------------------------------------------------------------
   const [backupLoading, setBackupLoading] = useState(false);
@@ -155,6 +168,13 @@ export default function Settings() {
           if (typeof s.isConfigured === 'boolean') {
             setEmailConfiguredStatus(s.isConfigured);
           }
+
+          const secData = {
+            singleDeviceSignIn: s.singleDeviceSignIn !== false,
+            leaseSeconds: s.leaseSeconds || 90,
+          };
+          setExamSecurityInitial(secData);
+          setExamSecurityForm(secData);
         }
       } catch (err) {
         // Fallback
@@ -927,6 +947,105 @@ export default function Settings() {
                 {t('settings.securitySection.signOutAll') || 'Sign Out of All Devices'}
               </Button>
             </div>
+
+            {/* Exam Session Security Card */}
+            <div className="pt-6 border-t border-surface-800 space-y-4 text-start">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-4 h-4 text-teal-400" />
+                <h4 className="text-sm font-bold text-surface-200">
+                  {t('session.singleDeviceSignIn') || 'Single Device Sign-In'}
+                </h4>
+              </div>
+              <p className="text-xs text-surface-400">
+                {t('session.singleDeviceSignInDesc') || 'Block multiple devices from signing in with the same student credentials simultaneously'}
+              </p>
+
+              <form
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  setExamSecurityLoading(true);
+                  try {
+                    const res = await api.put('/api/admin/settings', {
+                      singleDeviceSignIn: examSecurityForm.singleDeviceSignIn,
+                      leaseSeconds: Number(examSecurityForm.leaseSeconds),
+                    });
+                    if (res.data?.settings) {
+                      const s = res.data.settings;
+                      const updated = {
+                        singleDeviceSignIn: s.singleDeviceSignIn !== false,
+                        leaseSeconds: s.leaseSeconds || 90,
+                      };
+                      setExamSecurityInitial(updated);
+                      setExamSecurityForm(updated);
+                    }
+                    setToast({ message: (t('common.saveChanges') || 'Saved') + ' ✓', type: 'success' });
+                  } catch (err) {
+                    const { message } = extractError(err, 'Failed to save exam security settings');
+                    setToast({ message, type: 'error' });
+                  } finally {
+                    setExamSecurityLoading(false);
+                  }
+                }}
+                className="space-y-4"
+              >
+                {/* Single Device Toggle Switch */}
+                <div className="flex items-center justify-between p-3.5 rounded-xl bg-surface-950/70 border border-surface-800">
+                  <div className="space-y-0.5">
+                    <span className="text-xs font-bold text-surface-100">
+                      {t('session.singleDeviceSignIn') || 'Single Device Enforcement'}
+                    </span>
+                    <p className="text-[11px] text-surface-400">
+                      {examSecurityForm.singleDeviceSignIn ? 'Active sessions strictly block secondary sign-ins' : 'Disabled — multiple simultaneous logins allowed'}
+                    </p>
+                  </div>
+                  <label className="relative inline-flex items-center cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={examSecurityForm.singleDeviceSignIn}
+                      onChange={(e) =>
+                        setExamSecurityForm((prev) => ({ ...prev, singleDeviceSignIn: e.target.checked }))
+                      }
+                      className="sr-only peer"
+                    />
+                    <div className="w-11 h-6 bg-surface-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-teal-500"></div>
+                  </label>
+                </div>
+
+                {/* Lease Seconds Timeout */}
+                <div className="space-y-1.5">
+                  <label className="text-xs font-medium text-surface-300">
+                    {t('session.leaseSeconds') || 'Session Lease Timeout (seconds)'}
+                  </label>
+                  <select
+                    value={examSecurityForm.leaseSeconds}
+                    onChange={(e) =>
+                      setExamSecurityForm((prev) => ({ ...prev, leaseSeconds: Number(e.target.value) }))
+                    }
+                    className="w-full h-11 px-3 rounded-xl bg-surface-950 border border-surface-800 text-xs font-semibold text-surface-100 focus:ring-2 focus:ring-teal-500 focus:outline-none cursor-pointer"
+                  >
+                    <option value="60">60 {t('common.seconds') || 'seconds'} (Fast release)</option>
+                    <option value="90">90 {t('common.seconds') || 'seconds'} (Recommended default)</option>
+                    <option value="120">120 {t('common.seconds') || 'seconds'}</option>
+                    <option value="180">180 {t('common.seconds') || 'seconds'}</option>
+                    <option value="300">300 {t('common.seconds') || 'seconds'}</option>
+                  </select>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={
+                    (examSecurityForm.singleDeviceSignIn === examSecurityInitial.singleDeviceSignIn &&
+                      Number(examSecurityForm.leaseSeconds) === Number(examSecurityInitial.leaseSeconds)) ||
+                    examSecurityLoading
+                  }
+                  loading={examSecurityLoading}
+                  size="sm"
+                >
+                  {t('common.saveChanges') || 'Save Changes'}
+                </Button>
+              </form>
+            </div>
+
           </section>
 
           {/* SECTION 3: APPEARANCE */}

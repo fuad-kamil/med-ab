@@ -331,6 +331,21 @@ export default function StudentProfileModal({
     }
   };
 
+  // Release Session Handler
+  const handleReleaseSession = async () => {
+    setActionLoading(true);
+    try {
+      await api.post(`/api/users/${studentId}/release-session`);
+      profileCache.delete(studentId);
+      await fetchProfile(studentId, true);
+      if (onStudentUpdated) onStudentUpdated();
+    } catch (err) {
+      alert(err.response?.data?.error || 'Failed to release session');
+    } finally {
+      setActionLoading(false);
+    }
+  };
+
   // Filtered & Searched Exams
   const filteredExams = useMemo(() => {
     if (!profileData?.exams) return [];
@@ -611,6 +626,16 @@ export default function StudentProfileModal({
                       />
                       <span>{student?.isActive ? t('common.active') || 'Active' : t('common.inactive') || 'Inactive'}</span>
                     </span>
+
+                    {/* Active session live badge */}
+                    {student?.activeSession?.status === 'active' &&
+                      student?.activeSession?.leasedUntil &&
+                      new Date(student.activeSession.leasedUntil) > new Date() && (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 shrink-0">
+                          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                          <span>{t('session.online') || 'Online'}</span>
+                        </span>
+                    )}
                   </div>
 
                   <div className="flex flex-wrap items-center gap-2 text-xs">
@@ -678,6 +703,22 @@ export default function StudentProfileModal({
                           <ShieldAlert className="w-3.5 h-3.5" />
                           <span>{student?.isActive ? t('students.deactivateStudent') || 'Deactivate' : t('students.activateStudent') || 'Activate'}</span>
                         </button>
+                        {student?.activeSession?.status === 'active' &&
+                          student?.activeSession?.leasedUntil &&
+                          new Date(student.activeSession.leasedUntil) > new Date() && (
+                            <button
+                              onClick={() => {
+                                setMoreMenuOpen(false);
+                                handleReleaseSession();
+                              }}
+                              disabled={actionLoading}
+                              className="w-full text-left px-3 py-2 text-xs font-medium text-amber-600 dark:text-amber-400 hover:bg-amber-500/10 flex items-center gap-2 transition-colors cursor-pointer"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              <span>{t('session.forceRelease') || 'Release Session'}</span>
+                            </button>
+                        )}
+
                         <button
                           onClick={() => {
                             setMoreMenuOpen(false);
@@ -721,6 +762,18 @@ export default function StudentProfileModal({
                     >
                       <span>{student?.isActive ? 'Deactivate' : 'Activate'}</span>
                     </button>
+                    {student?.activeSession?.status === 'active' &&
+                      student?.activeSession?.leasedUntil &&
+                      new Date(student.activeSession.leasedUntil) > new Date() && (
+                        <button
+                          onClick={handleReleaseSession}
+                          disabled={actionLoading}
+                          className="px-3 py-2.5 rounded-xl text-xs font-semibold bg-amber-500/15 text-amber-600 dark:text-amber-400 border border-amber-500/30 transition-colors cursor-pointer flex items-center gap-1"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>{t('session.forceRelease') || 'Release'}</span>
+                        </button>
+                    )}
                   </div>
                 </div>
               </div>

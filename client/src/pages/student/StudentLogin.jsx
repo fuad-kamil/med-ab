@@ -4,7 +4,9 @@ import { useTranslation } from 'react-i18next';
 import api from '../../api/client';
 import { Button } from '../../components/Button';
 import PreferencesControls from '../../components/PreferencesControls';
+import AccountInUseScreen from '../../components/AccountInUseScreen';
 import { GraduationCap, Eye, EyeOff, AlertCircle, ShieldAlert } from 'lucide-react';
+import { getDeviceKey, clearAllExamState } from '../../utils/sessionManager';
 
 export default function StudentLogin() {
   const { t } = useTranslation();
@@ -13,12 +15,12 @@ export default function StudentLogin() {
   const location = useLocation();
 
   const loggedOutDueToTabSwitch = location.state?.loggedOutDueToTabSwitch;
+  const sessionReplaced = location.state?.sessionReplaced;
 
   // Handle address bar token hiding: read URL token, store in sessionStorage, then clean address bar to /exam
   const [accessToken, setAccessToken] = useState(() => {
     if (urlToken) {
       sessionStorage.setItem('exam_access_token', urlToken.trim());
-      // Clean URL immediately to /exam without token in address bar
       window.history.replaceState(null, '', '/exam');
       return urlToken.trim();
     }
@@ -33,6 +35,12 @@ export default function StudentLogin() {
   const [loadingMeta, setLoadingMeta] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+
+  // Session blocked state
+  const [blockedWaitToken, setBlockedWaitToken] = useState(null);
+
+  // Ensure device key is generated early (so it's available on first login attempt)
+  useEffect(() => { getDeviceKey(); }, []);
 
   // Clear inputs on mount & handles back-forward cache restore
   useEffect(() => {
@@ -69,6 +77,27 @@ export default function StudentLogin() {
     fetchExamInfo();
   }, [accessToken, t]);
 
+  const handleLoginSuccess = (data) => {
+    if (data.alreadySubmitted) {
+      if (data.token) {
+        sessionStorage.setItem('studentExamToken', data.token);
+        localStorage.setItem('studentExamToken', data.token);
+      }
+      navigate('/exam/result', {
+        state: { message: data.message, status: data.status },
+      });
+      return;
+    }
+
+    sessionStorage.setItem('studentExamToken', data.token);
+    localStorage.setItem('studentExamToken', data.token);
+    if (data.student) {
+      sessionStorage.setItem('studentMeta', JSON.stringify(data.student));
+    }
+
+    navigate('/exam/take');
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!accessToken || !studentId || !password) {
@@ -80,36 +109,73 @@ export default function StudentLogin() {
     setError('');
 
     try {
-      const res = await api.post('/api/student/login', {
-        accessToken: accessToken.trim(),
-        studentId: studentId.trim(),
-        password: password.trim(),
-      });
-
-      if (res.data.alreadySubmitted) {
-        if (res.data.token) {
-          sessionStorage.setItem('studentExamToken', res.data.token);
-          localStorage.setItem('studentExamToken', res.data.token);
+      const res = await api.post(
+        '/api/student/login',
+        {
+          accessToken: accessToken.trim(),
+          studentId: studentId.trim(),
+          password: password.trim(),
+        },
+        {
+          headers: {
+            'X-Device-Key': getDeviceKey(),
+          },
         }
-        navigate('/exam/result', {
-          state: { message: res.data.message, status: res.data.status },
-        });
+      );
+
+      handleLoginSuccess(res.data);
+    } catch (err) {
+      const status = err.response?.status;
+      const data = err.response?.data;
+
+      if (status === 409 && data?.code === 'ACCOUNT_IN_USE') {
+        // Show blocked screen — password is NOT stored
+        setPassword('');
+        setBlockedWaitToken(data.waitToken);
         return;
       }
 
-      // Save student exam token to sessionStorage & localStorage
-      sessionStorage.setItem('studentExamToken', res.data.token);
-      localStorage.setItem('studentExamToken', res.data.token);
-      sessionStorage.setItem('studentMeta', JSON.stringify(res.data.student));
-
-      // Navigate to clean active exam route /exam/take
-      navigate('/exam/take');
-    } catch (err) {
       setError(err.response?.data?.error || t('errors.authFailed'));
     } finally {
       setSubmitting(false);
     }
   };
+
+  // ─── ACCOUNT_IN_USE blocked screen ───────────────────────────────────────
+  if (blockedWaitToken) {
+    return (
+      <div className="min-h-[100dvh] relative flex items-center justify-center p-4 sm:p-6 bg-surface-950 text-surface-100 transition-colors">
+        <div className="absolute top-4 right-4 z-50">
+          <PreferencesControls />
+        </div>
+        <div className="w-full max-w-md space-y-6">
+          {/* Header Branding */}
+          <div className="text-center space-y-2">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-teal-600/20 border border-teal-500/30 text-teal-400 shadow-lg shadow-teal-900/20 mb-1">
+              <GraduationCap className="w-8 h-8" />
+            </div>
+            <h1 className="font-sans text-2xl sm:text-3xl font-bold text-surface-100">
+              {t('common.appName')}
+            </h1>
+          </div>
+          <AccountInUseScreen
+            waitToken={blockedWaitToken}
+            accessToken={accessToken}
+            onSuccess={(data) => {
+              setBlockedWaitToken(null);
+              handleLoginSuccess(data);
+            }}
+            onBack={() => {
+              setBlockedWaitToken(null);
+              setStudentId('');
+              setPassword('');
+              setError('');
+            }}
+          />
+        </div>
+      </div>
+    );
+  }
 
   // If no exam found or link is terminated
   if ((!accessToken || !examMeta) && !loadingMeta) {
@@ -194,6 +260,19 @@ export default function StudentLogin() {
               </div>
             </div>
           ) : null}
+
+          {/* SESSION_REPLACED Banner */}
+          {sessionReplaced && (
+            <div className="p-4 bg-rose-950/80 border border-rose-700/80 rounded-2xl space-y-1.5 text-start animate-fade-in shadow-lg">
+              <div className="flex items-center gap-2 text-rose-300 font-bold text-xs sm:text-sm">
+                <ShieldAlert className="w-5 h-5 text-rose-400 shrink-0" />
+                <span>{t('session.replacedTitle')}</span>
+              </div>
+              <p className="text-xs text-rose-200/90 leading-relaxed">
+                {t('session.replacedMessage')}
+              </p>
+            </div>
+          )}
 
           {/* Logged Out Due to Tab Switch Warnings Banner */}
           {loggedOutDueToTabSwitch && (

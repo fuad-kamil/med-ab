@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { env } from '../config/env.js';
 import { ApiError } from './errorHandler.js';
 import { User } from '../models/User.js';
+import { isSingleDeviceEnabled } from '../services/sessionService.js';
 
 const tokenVersionCache = new Map();
 const CACHE_TTL_MS = 15000;
@@ -76,6 +77,60 @@ export function requireExamScope(req, res, next) {
   next();
 }
 
+/**
+ * requireExamSession — placed after requireExamScope on exam routes.
+ * When single-device sign-in is ON: verifies that token.sid still matches
+ * the activeSession.sessionId in the DB. If not (another device claimed it),
+ * returns 401 SESSION_REPLACED.
+ * Adds a 30-second in-memory cache to keep heartbeat cost tiny.
+ */
+const sessionIdCache = new Map();
+const SESSION_CACHE_TTL_MS = 30_000;
+
+export async function requireExamSession(req, res, next) {
+  const sid = req.user?.sid;
+  const userId = req.user?.userId;
+
+  // If feature is OFF or token has no sid, skip check
+  if (!sid || !userId) return next();
+
+  try {
+    const enabled = await isSingleDeviceEnabled();
+    if (!enabled) return next();
+
+    const cacheKey = `${userId}:${sid}`;
+    const cached = sessionIdCache.get(cacheKey);
+    const now = Date.now();
+
+    if (cached && cached.expiresAt > now) {
+      if (!cached.valid) return next(new ApiError(401, 'SESSION_REPLACED'));
+      return next();
+    }
+
+    const user = await User.findById(userId).select('activeSession').lean();
+    const valid = user?.activeSession?.sessionId === sid;
+
+    sessionIdCache.set(cacheKey, { valid, expiresAt: now + SESSION_CACHE_TTL_MS });
+
+    if (!valid) {
+      return next(new ApiError(401, 'SESSION_REPLACED'));
+    }
+    next();
+  } catch {
+    // Non-critical: let the request through if the check fails (defensive)
+    next();
+  }
+}
+
+/** Invalidate session cache for a user (call on logout/claim) */
+export function invalidateSessionCache(userId) {
+  if (!userId) return;
+  const prefix = `${userId}:`;
+  for (const key of sessionIdCache.keys()) {
+    if (key.startsWith(prefix)) sessionIdCache.delete(key);
+  }
+}
+
 // Generate admin JWT
 export function signAdminToken(userOrId) {
   const userId = typeof userOrId === 'object' ? userOrId._id || userOrId.id : userOrId;
@@ -90,11 +145,15 @@ export function signAdminToken(userOrId) {
   );
 }
 
-// Generate student exam-scoped JWT
-export function signStudentExamToken(userId, examId) {
-  return jwt.sign(
-    { userId: userId.toString(), role: 'student', examId: examId.toString() },
-    env.JWT_SECRET,
-    { expiresIn: '4h' }
-  );
+// Generate student exam-scoped JWT (includes sid for session tracking)
+export function signStudentExamToken(userId, examId, sessionId) {
+  const payload = {
+    userId: userId.toString(),
+    role: 'student',
+    examId: examId.toString(),
+  };
+  if (sessionId) {
+    payload.sid = sessionId;
+  }
+  return jwt.sign(payload, env.JWT_SECRET, { expiresIn: '4h' });
 }

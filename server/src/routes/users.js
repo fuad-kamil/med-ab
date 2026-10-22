@@ -10,6 +10,7 @@ import {
   bulkImport,
   getStudentCount,
   getStudentDetails,
+  releaseStudentSession,
 } from '../controllers/userController.js';
 import { authenticate } from '../middleware/auth.js';
 import { requireRole } from '../middleware/role.js';
@@ -38,5 +39,6 @@ router.put('/:id', validate(updateUserSchema), asyncHandler(updateUser));
 router.delete('/:id', asyncHandler(deleteUser));
 router.patch('/:id/deactivate', asyncHandler(deactivateUser));
 router.post('/:id/reset-password', validate(resetPasswordSchema), asyncHandler(resetPassword));
+router.post('/:id/release-session', asyncHandler(releaseStudentSession));
 
 export default router;

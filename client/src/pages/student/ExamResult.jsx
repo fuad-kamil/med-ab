@@ -5,6 +5,7 @@ import { FileText } from 'lucide-react';
 import api from '../../api/client';
 import { Button } from '../../components/Button';
 import PreferencesControls from '../../components/PreferencesControls';
+import { clearAllExamState } from '../../utils/sessionManager';
 
 export default function ExamResult() {
   const { t, i18n } = useTranslation();
@@ -17,10 +18,22 @@ export default function ExamResult() {
   const [error, setError] = useState('');
   const [downloadingDoc, setDownloadingDoc] = useState(false);
 
-  const studentToken = sessionStorage.getItem('studentExamToken');
+  const studentToken = sessionStorage.getItem('studentExamToken') || localStorage.getItem('studentExamToken');
   const studentApiConfig = {
     headers: { Authorization: `Bearer ${studentToken}` },
   };
+
+  const handleExit = async () => {
+    try {
+      if (studentToken) {
+        await api.post('/api/student/logout', {}, studentApiConfig).catch(() => {});
+      }
+    } finally {
+      clearAllExamState();
+      navigate('/exam', { replace: true });
+    }
+  };
+
 
   const handleDownloadDocx = async () => {
     try {
@@ -130,11 +143,7 @@ export default function ExamResult() {
 
           <Button
             variant="outline"
-            onClick={() => {
-              sessionStorage.removeItem('exam_access_token');
-              sessionStorage.removeItem('studentExamToken');
-              navigate('/exam');
-            }}
+            onClick={handleExit}
             className="w-full"
           >
             {t('exam.backToEntrance')}
@@ -345,10 +354,7 @@ export default function ExamResult() {
 
           <Button
             variant="outline"
-            onClick={() => {
-              sessionStorage.removeItem('studentExamToken');
-              navigate(`/exam/${urlToken}`);
-            }}
+            onClick={handleExit}
             className="w-full sm:w-auto"
           >
             {t('exam.exitExamPortal')}

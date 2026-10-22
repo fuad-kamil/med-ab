@@ -5,6 +5,8 @@ import api from '../../api/client';
 import { Button } from '../../components/Button';
 import { Modal } from '../../components/Modal';
 import PreferencesControls from '../../components/PreferencesControls';
+import { getSessionManager, getDeviceKey, clearAllExamState } from '../../utils/sessionManager';
+import { ShieldAlert, LogOut } from 'lucide-react';
 
 // Script detector for font styling (Arabic / Ethiopic)
 function detectScriptClass(text) {
@@ -48,6 +50,10 @@ export default function TakeExam() {
   const [showThreeMinModal, setShowThreeMinModal] = useState(false);
   const [showInstructionsModal, setShowInstructionsModal] = useState(false);
   const [extraTimeNotification, setExtraTimeNotification] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [loggingOut, setLoggingOut] = useState(false);
+  const [blockedToast, setBlockedToast] = useState(null); // { count }
+  const [blockedToastVisible, setBlockedToastVisible] = useState(false);
 
   const studentToken =
     sessionStorage.getItem('studentExamToken') || localStorage.getItem('studentExamToken');
@@ -92,6 +98,11 @@ export default function TakeExam() {
         navigate('/exam/result');
         return;
       }
+      // Handle session replaced during exam load
+      if (err.response?.status === 401 && errRes?.code === 'SESSION_REPLACED') {
+        handleSessionReplaced();
+        return;
+      }
       setError(errRes?.error || t('errors.GENERIC'));
     } finally {
       setLoading(false);
@@ -101,6 +112,53 @@ export default function TakeExam() {
   useEffect(() => {
     fetchExamData();
   }, [fetchExamData]);
+
+  // Session manager: start heartbeat after exam loads
+  const handleSessionReplaced = useCallback(() => {
+    getSessionManager().stop();
+    clearAllExamState();
+    navigate('/exam', {
+      replace: true,
+      state: { sessionReplaced: true },
+    });
+  }, [navigate]);
+
+  useEffect(() => {
+    if (!loading && exam && studentToken) {
+      const sm = getSessionManager();
+      sm.start({
+        token: studentToken,
+        onReplaced: handleSessionReplaced,
+        onBlocked: (count) => {
+          setBlockedToast({ count });
+          setBlockedToastVisible(true);
+          // Auto-dismiss after 8s
+          setTimeout(() => setBlockedToastVisible(false), 8000);
+        },
+      });
+    }
+    return () => {
+      getSessionManager().stop();
+    };
+  }, [loading, exam, studentToken, handleSessionReplaced]);
+
+  // Copy protection: prevent selecting/copying exam content
+  useEffect(() => {
+    const prevent = (e) => e.preventDefault();
+    const preventContext = (e) => { e.preventDefault(); return false; };
+    document.addEventListener('copy', prevent);
+    document.addEventListener('cut', prevent);
+    document.addEventListener('dragstart', prevent);
+    document.addEventListener('selectstart', prevent);
+    document.addEventListener('contextmenu', preventContext);
+    return () => {
+      document.removeEventListener('copy', prevent);
+      document.removeEventListener('cut', prevent);
+      document.removeEventListener('dragstart', prevent);
+      document.removeEventListener('selectstart', prevent);
+      document.removeEventListener('contextmenu', preventContext);
+    };
+  }, []);
 
   // 2. Countdown Timer
   useEffect(() => {
@@ -146,6 +204,9 @@ export default function TakeExam() {
       setSavingStatus('saved');
       setTimeout(() => setSavingStatus('idle'), 2000);
 
+      // Notify session manager that a request just happened (skip next heartbeat)
+      getSessionManager().notifyAutosave();
+
       if (typeof res.data?.remainingSeconds === 'number') {
         const serverSec = res.data.remainingSeconds;
         setRemainingSeconds((prev) => {
@@ -162,11 +223,15 @@ export default function TakeExam() {
       }
     } catch (err) {
       setSavingStatus('error');
+      if (err.response?.status === 401 && err.response?.data?.code === 'SESSION_REPLACED') {
+        handleSessionReplaced();
+        return;
+      }
       if (err.response?.status === 403) {
         setError(err.response?.data?.error || t('exam.examClosed'));
       }
     }
-  }, [studentToken, t]);
+  }, [studentToken, t, handleSessionReplaced]);
 
   useEffect(() => {
     if (loading || !questions.length) return;
@@ -199,9 +264,8 @@ export default function TakeExam() {
 
       if (nextCount >= 3) {
         // Clear student exam tokens & session
-        sessionStorage.removeItem('studentExamToken');
-        localStorage.removeItem('studentExamToken');
-        sessionStorage.removeItem('studentMeta');
+        getSessionManager().stop();
+        clearAllExamState();
 
         // Redirect to login page with reason state
         navigate('/exam', {
@@ -245,6 +309,44 @@ export default function TakeExam() {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, []);
 
+  // 6. Copy protection: prevent copy, cut, contextmenu, dragstart, selectstart outside inputs
+  useEffect(() => {
+    const isInputElement = (target) =>
+      target instanceof HTMLInputElement ||
+      target instanceof HTMLTextAreaElement ||
+      Boolean(target?.isContentEditable);
+
+    const preventAction = (e) => {
+      if (!isInputElement(e.target)) {
+        e.preventDefault();
+      }
+    };
+
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && ['c', 'C', 'u', 'U'].includes(e.key)) {
+        if (!isInputElement(e.target)) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener('copy', preventAction);
+    document.addEventListener('cut', preventAction);
+    document.addEventListener('contextmenu', preventAction);
+    document.addEventListener('dragstart', preventAction);
+    document.addEventListener('selectstart', preventAction);
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('copy', preventAction);
+      document.removeEventListener('cut', preventAction);
+      document.removeEventListener('contextmenu', preventAction);
+      document.removeEventListener('dragstart', preventAction);
+      document.removeEventListener('selectstart', preventAction);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
+
   // Toggle Flag Question
   const toggleFlag = (qId) => {
     const updated = flagged.includes(qId)
@@ -262,14 +364,28 @@ export default function TakeExam() {
     }
   };
 
+  // Logout student
+  const handleLogout = async () => {
+    try {
+      setLoggingOut(true);
+      await api.post('/api/student/logout', {}, studentApiConfig).catch(() => {});
+    } finally {
+      getSessionManager().stop();
+      clearAllExamState();
+      setShowLogoutModal(false);
+      navigate('/exam', { replace: true });
+    }
+  };
+
   // Auto-submit when timer reaches 0
   const handleAutoSubmitTimeExpired = async () => {
     try {
       setSubmitting(true);
       await api.post('/api/student/submit', { answers }, studentApiConfig);
+      getSessionManager().stop();
       localStorage.removeItem(`exam_progress_${urlToken || 'active'}`);
       navigate('/exam/result', { state: { autoSubmitted: true } });
-    } catch (err) {
+    } catch {
       navigate('/exam/result');
     }
   };
@@ -279,6 +395,7 @@ export default function TakeExam() {
     try {
       setSubmitting(true);
       await api.post('/api/student/submit', { answers }, studentApiConfig);
+      getSessionManager().stop();
       localStorage.removeItem(`exam_progress_${urlToken || 'active'}`);
       setShowSubmitModal(false);
       navigate('/exam/result');
@@ -336,7 +453,26 @@ export default function TakeExam() {
 
 
   return (
-    <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col font-sans select-none pb-20 lg:pb-0">
+    <div className="min-h-screen bg-surface-950 text-surface-100 flex flex-col font-sans select-none pb-20 lg:pb-0" style={{ userSelect: 'none', WebkitUserSelect: 'none' }}>
+      {/* ── Blocked-account toast (aria-live) ── */}
+      {blockedToastVisible && blockedToast && (
+        <div
+          role="status"
+          aria-live="polite"
+          className="fixed top-20 left-1/2 -translate-x-1/2 z-50 max-w-sm w-[90vw] bg-amber-900/95 border border-amber-600/60 text-amber-100 p-3.5 rounded-2xl shadow-2xl flex items-start gap-3 animate-slide-up"
+        >
+          <ShieldAlert className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <p className="text-xs leading-relaxed flex-1">{t('session.blockedToastMessage')}</p>
+          <button
+            onClick={() => setBlockedToastVisible(false)}
+            className="text-amber-400 hover:text-amber-200 text-xs shrink-0 px-1"
+            aria-label={t('common.close')}
+          >
+            ✕
+          </button>
+        </div>
+      )}
+
       {/* Floating Extra Time Notification */}
       {extraTimeNotification && (
         <div className="fixed top-16 right-4 z-50 max-w-sm bg-gradient-to-r from-amber-500 to-amber-600 text-white p-4 rounded-2xl shadow-2xl flex items-center gap-3 animate-bounce border border-amber-300">
@@ -431,6 +567,17 @@ export default function TakeExam() {
               title={t('exam.toggleFullscreen')}
             >
               ⛶
+            </button>
+
+            {/* Sign Out Button */}
+            <button
+              id="exam-sign-out-btn"
+              onClick={() => setShowLogoutModal(true)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-surface-800 hover:bg-rose-900/60 text-surface-400 hover:text-rose-300 text-xs font-medium border border-surface-700 hover:border-rose-700/50 min-h-[38px] transition-colors"
+              title={t('session.signOutTooltip')}
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">{t('session.signOut')}</span>
             </button>
 
             {/* Language & Theme Controls */}
@@ -947,6 +1094,38 @@ export default function TakeExam() {
           </div>
         </Modal>
       )}
+
+      {/* Sign Out Confirmation Modal */}
+      <Modal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        title={t('session.signOutTitle')}
+        size="sm"
+      >
+        <div className="space-y-4 text-start">
+          <p className="text-sm text-surface-300 leading-relaxed">
+            {t('session.signOutConfirm')}
+          </p>
+          <div className="flex items-center justify-end gap-3 pt-2">
+            <Button
+              variant="secondary"
+              onClick={() => setShowLogoutModal(false)}
+              disabled={loggingOut}
+            >
+              {t('session.stayInExam')}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={handleLogout}
+              disabled={loggingOut}
+              className="bg-rose-600 hover:bg-rose-500 text-white font-bold"
+            >
+              {loggingOut ? t('session.signingOut') : t('session.signOutConfirmBtn')}
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </div>
   );
 }
+

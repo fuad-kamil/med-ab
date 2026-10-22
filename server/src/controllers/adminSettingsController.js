@@ -8,6 +8,7 @@ import { Attempt } from '../models/Attempt.js';
 import { ApiError } from '../middleware/errorHandler.js';
 import { env } from '../config/env.js';
 import { sendResultEmail } from '../services/emailService.js';
+import { invalidateLeaseCache } from '../services/sessionService.js';
 
 export async function getSystemSettings(req, res) {
   let settings = await SystemSettings.findOne();
@@ -27,7 +28,7 @@ export async function getSystemSettings(req, res) {
 }
 
 export async function updateSystemSettings(req, res) {
-  const { senderName, replyToEmail, resultEmailLanguage, resultEmailIncludeAnswers } = req.body;
+  const { senderName, replyToEmail, resultEmailLanguage, resultEmailIncludeAnswers, singleDeviceSignIn, leaseSeconds } = req.body;
 
   let settings = await SystemSettings.findOne();
   if (!settings) {
@@ -49,6 +50,18 @@ export async function updateSystemSettings(req, res) {
   }
   if (resultEmailIncludeAnswers && ['auto', 'always', 'never'].includes(resultEmailIncludeAnswers)) {
     settings.resultEmailIncludeAnswers = resultEmailIncludeAnswers;
+  }
+  // Exam security settings
+  if (typeof singleDeviceSignIn === 'boolean') {
+    settings.singleDeviceSignIn = singleDeviceSignIn;
+  }
+  if (leaseSeconds !== undefined) {
+    const ls = Number(leaseSeconds);
+    if (isNaN(ls) || ls < 45 || ls > 300) {
+      throw new ApiError(400, 'Session timeout must be between 45 and 300 seconds.');
+    }
+    settings.leaseSeconds = ls;
+    invalidateLeaseCache();
   }
 
   await settings.save();

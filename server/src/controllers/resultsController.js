@@ -182,11 +182,12 @@ export async function getExamResults(req, res) {
     : { examId: exam._id };
 
   const attempts = await Attempt.find(attemptFilter)
-    .populate('studentId', 'studentId fullName isActive categoryIds email')
+    .populate('studentId', 'studentId fullName isActive categoryIds email activeSession')
     .sort({ submittedAt: -1 })
     .lean();
 
   const passThreshold = typeof exam.passMark === 'number' && !isNaN(exam.passMark) ? exam.passMark : 50;
+  const now = new Date();
 
   let results = attempts.map((a) => {
     const student = a.studentId;
@@ -197,6 +198,12 @@ export async function getExamResults(req, res) {
       a.submittedAt && a.startedAt
         ? Math.round((new Date(a.submittedAt) - new Date(a.startedAt)) / 60000)
         : null;
+
+    const hasActiveSession = Boolean(
+      student?.activeSession?.status === 'active' &&
+      student?.activeSession?.leasedUntil &&
+      new Date(student.activeSession.leasedUntil) > now
+    );
 
     return {
       attemptId: a._id,
@@ -217,6 +224,7 @@ export async function getExamResults(req, res) {
       startedAt: a.startedAt,
       tabSwitchCount: a.tabSwitchCount || 0,
       examDeleted: a.examDeleted || isDeleted,
+      hasActiveSession,
     };
   });
 
@@ -240,7 +248,7 @@ export async function getExamResults(req, res) {
     }
 
     const eligibleStudents = await User.find(studentFilter)
-      .select('studentId fullName email')
+      .select('studentId fullName email activeSession')
       .lean();
 
     const attemptStudentIds = new Set(attempts.map((a) => a.studentId?._id?.toString()));
@@ -268,6 +276,11 @@ export async function getExamResults(req, res) {
         startedAt: null,
         tabSwitchCount: 0,
         examDeleted: false,
+        hasActiveSession: Boolean(
+          s.activeSession?.status === 'active' &&
+          s.activeSession?.leasedUntil &&
+          new Date(s.activeSession.leasedUntil) > now
+        ),
       }));
 
     results = [...results, ...notStarted];

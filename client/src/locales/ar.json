@@ -863,5 +863,32 @@
   "admin": {
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar"
+  },
+  "session": {
+    "accountInUseTitle": "الحساب قيد الاستخدام",
+    "accountInUseBody": "حساب هذا الطالب مسجل الدخول حالياً من جهاز آخر.",
+    "accountInUsePaused": "توقف الانتظار المؤقت. اضغط حاول الآن عندما تكون جاهزاً.",
+    "accountInUseCountdown": "جاري التحقق من التوفر خلال {{seconds}} ث...",
+    "tryNow": "حاول الآن",
+    "blockedToastMessage": "حاول جهاز آخر تسجيل الدخول برقمك الأكاديمي أثناء نشاط جلستك.",
+    "signOutTitle": "تسجيل الخروج",
+    "signOutConfirm": "هل أنت متأكد من تسجيل الخروج؟ إجاباتك محفوظة، ويمكنك العودة قبل انتهاء الوقت المتبقي.",
+    "signOutConfirmBtn": "تسجيل الخروج",
+    "stayInExam": "البقاء في الاختبار",
+    "signingOut": "جاري تسجيل الخروج...",
+    "signOutTooltip": "تسجيل الخروج من هذا الجهاز",
+    "replacedTitle": "تم إنهاء الجلسة",
+    "replacedMessage": "تم إنهاء جلستك في الاختبار نظراً لتسجيل الدخول بهذا الحساب من جهاز آخر.",
+    "singleDeviceSignIn": "تسجيل الدخول من جهاز واحد",
+    "singleDeviceSignInDesc": "منع تسجيل الدخول المتزامن من أكثر من جهاز لنفس حساب الطالب",
+    "leaseSeconds": "مدة صلاحية الجلسة (بالثواني)",
+    "activeSession": "جلسة نشطة",
+    "noActiveSession": "لا توجد جلسة نشطة",
+    "forceRelease": "تحرير الجلسة",
+    "releaseSuccess": "تم تحرير الجلسة بنجاح",
+    "releaseConfirm": "هل أنت متأكد من تحرير الجلسة النشطة لهذا الطالب؟ سيتيح له ذلك تسجيل الدخول فوراً من جهاز جديد.",
+    "releasing": "جاري التحرير...",
+    "online": "متصل",
+    "idle": "خامل"
   }
 }

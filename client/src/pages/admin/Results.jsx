@@ -660,15 +660,23 @@ export default function Results() {
                             )}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {att.status === 'not_started' ? (
-                              <Badge variant="default">{t('results.notStarted')}</Badge>
-                            ) : att.needsGrading ? (
-                              <Badge variant="warning">{t('results.needsReview')}</Badge>
-                            ) : att.passed ? (
-                              <Badge variant="success">{t('results.passed')}</Badge>
-                            ) : (
-                              <Badge variant="danger">{t('results.failed')}</Badge>
-                            )}
+                            <div className="flex items-center gap-1.5 flex-wrap">
+                              {att.status === 'not_started' ? (
+                                <Badge variant="default">{t('results.notStarted')}</Badge>
+                              ) : att.needsGrading ? (
+                                <Badge variant="warning">{t('results.needsReview')}</Badge>
+                              ) : att.passed ? (
+                                <Badge variant="success">{t('results.passed')}</Badge>
+                              ) : (
+                                <Badge variant="danger">{t('results.failed')}</Badge>
+                              )}
+                              {att.hasActiveSession && (
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                                  <span>{t('session.online') || 'Online'}</span>
+                                </span>
+                              )}
+                            </div>
                           </td>
                           <td className="px-6 py-4 text-xs text-surface-400">
                             {att.submittedAt ? new Date(att.submittedAt).toLocaleString() : t('results.notSubmitted')}
@@ -722,6 +730,25 @@ export default function Results() {
                                           examTitle: examDetails.exam?.title,
                                         }),
                                     },
+                                    att.hasActiveSession && {
+                                      label: t('session.forceRelease') || 'Release Session',
+                                      icon: RotateCcw,
+                                      onClick: async () => {
+                                        try {
+                                          await api.post(`/api/users/${att.studentDbId}/release-session`);
+                                          setToast({
+                                            message: t('session.releaseSuccess') || 'Session released successfully',
+                                            type: 'success',
+                                          });
+                                          loadExamDetails(selectedExamId);
+                                        } catch (err) {
+                                          setToast({
+                                            message: extractError(err, 'Failed to release session').message,
+                                            type: 'error',
+                                          });
+                                        }
+                                      },
+                                    },
                                   ].filter(Boolean)}
                                 />
                               </ActionRow>
@@ -749,7 +776,7 @@ export default function Results() {
                             </span>
                           </div>
                         </div>
-                        <div>
+                        <div className="flex items-center gap-1.5 flex-wrap justify-end">
                           {att.status === 'not_started' ? (
                             <Badge variant="default">{t('results.notStarted')}</Badge>
                           ) : att.needsGrading ? (
@@ -758,6 +785,12 @@ export default function Results() {
                             <Badge variant="success">{t('results.passed')}</Badge>
                           ) : (
                             <Badge variant="danger">{t('results.failed')}</Badge>
+                          )}
+                          {att.hasActiveSession && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-500/15 text-emerald-400 border border-emerald-500/30">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                              <span>{t('session.online') || 'Online'}</span>
+                            </span>
                           )}
                         </div>
                       </div>

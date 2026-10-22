@@ -771,5 +771,32 @@
   "admin": {
     "collapseSidebar": "Collapse sidebar",
     "expandSidebar": "Expand sidebar"
+  },
+  "session": {
+    "accountInUseTitle": "Account In Use",
+    "accountInUseBody": "This student account is currently signed in on another device.",
+    "accountInUsePaused": "Waiting stopped. Tap Try Now when you're ready.",
+    "accountInUseCountdown": "Checking availability in {{seconds}}s...",
+    "tryNow": "Try Now",
+    "blockedToastMessage": "Another device attempted to sign in with your ID while your session was active.",
+    "signOutTitle": "Sign Out",
+    "signOutConfirm": "Are you sure you want to sign out? Your answers are saved, and you can sign back in before time runs out.",
+    "signOutConfirmBtn": "Sign Out",
+    "stayInExam": "Stay in Exam",
+    "signingOut": "Signing out...",
+    "signOutTooltip": "Sign out of this device",
+    "replacedTitle": "Session Terminated",
+    "replacedMessage": "Your exam session was ended because this account signed in from another device.",
+    "singleDeviceSignIn": "Single Device Sign-In",
+    "singleDeviceSignInDesc": "Block multiple devices from signing in with the same student credentials simultaneously",
+    "leaseSeconds": "Session Lease Duration (seconds)",
+    "activeSession": "Active Session",
+    "noActiveSession": "No active session",
+    "forceRelease": "Release Session",
+    "releaseSuccess": "Session released successfully",
+    "releaseConfirm": "Are you sure you want to release the active session for this student? This will allow them to log in on a new device immediately.",
+    "releasing": "Releasing...",
+    "online": "Online",
+    "idle": "Idle"
   }
 }

@@ -4,10 +4,20 @@ import { Exam, isExamWithinWindow } from '../models/Exam.js';
 import { Question } from '../models/Question.js';
 import { Attempt } from '../models/Attempt.js';
 import { ApiError } from '../middleware/errorHandler.js';
-import { signStudentExamToken } from '../middleware/auth.js';
+import { signStudentExamToken, invalidateSessionCache } from '../middleware/auth.js';
 import { normalizeStudentId } from '../models/Counter.js';
 import { buildAttemptReportDocx } from './resultsController.js';
 import { getOrCreateExamSnapshot } from '../services/snapshotService.js';
+import {
+  claimSession,
+  releaseSession,
+  softReleaseSession,
+  renewLease,
+  signWaitToken,
+  verifyWaitToken,
+  logSessionEvent,
+  isSingleDeviceEnabled,
+} from '../services/sessionService.js';
 
 // Shuffle array utility (Fisher-Yates)
 function shuffleArray(arr) {
@@ -158,8 +168,61 @@ export async function loginAndStartExam(req, res) {
     });
   }
 
-  // 7. Issue scoped student exam JWT token
-  const token = signStudentExamToken(student._id, exam._id);
+  // 7. Single-device session enforcement
+  const singleDeviceEnabled = await isSingleDeviceEnabled();
+  let sessionId = null;
+
+  if (singleDeviceEnabled) {
+    const deviceKey = req.headers['x-device-key'] || 'unknown';
+    const ip = req.ip || req.connection?.remoteAddress || '';
+    const ua = req.headers['user-agent'] || '';
+
+    const sessionResult = await claimSession(student._id, deviceKey, {
+      examId: exam._id,
+      attemptId: attempt?._id || null,
+      ua,
+      ip,
+    });
+
+    if (!sessionResult.claimed) {
+      // Account is in use on another device — do NOT reveal credential state
+      const nonce = Math.random().toString(36).slice(2);
+      const waitToken = signWaitToken(student._id, exam._id, nonce);
+
+      await logSessionEvent({
+        studentId: student._id,
+        examId: exam._id,
+        attemptId: attempt?._id || null,
+        type: 'blocked_login',
+        deviceLabel: req.headers['user-agent'] ? null : null, // never reveal other device
+        ipMasked: null,
+      });
+
+      return res.status(409).json({
+        code: 'ACCOUNT_IN_USE',
+        waitToken,
+        retryAfterSeconds: 5,
+        message: 'Account is currently in use on another device.',
+      });
+    }
+
+    sessionId = sessionResult.sessionId;
+
+    await logSessionEvent({
+      studentId: student._id,
+      examId: exam._id,
+      attemptId: attempt?._id || null,
+      type: 'started',
+      deviceLabel: sessionResult.deviceLabel,
+      ipMasked: null,
+    });
+  }
+
+  // Invalidate session cache so the new sid is checked fresh
+  invalidateSessionCache(student._id.toString());
+
+  // 8. Issue scoped student exam JWT token (includes sid when feature is ON)
+  const token = signStudentExamToken(student._id, exam._id, sessionId);
 
   res.json({
     token,
@@ -334,7 +397,7 @@ export async function saveProgress(req, res) {
 
 // Submit Exam
 export async function submitExam(req, res) {
-  const { userId, examId } = req.user;
+  const { userId, examId, sid } = req.user;
   const { answers } = req.body;
 
   const attempt = await Attempt.findOne({ examId, studentId: userId });
@@ -366,6 +429,20 @@ export async function submitExam(req, res) {
   attempt.totalMarks = totalMarks;
 
   await attempt.save();
+
+  // Release session (reason: submit)
+  if (sid) {
+    await releaseSession(userId, sid, 'submit').catch(() => {});
+    invalidateSessionCache(userId);
+    await logSessionEvent({
+      studentId: userId,
+      examId,
+      attemptId: attempt._id,
+      type: 'released',
+      deviceLabel: null,
+      ipMasked: null,
+    }).catch(() => {});
+  }
 
   const exam = await Exam.findById(examId).lean();
 
@@ -553,3 +630,138 @@ export async function downloadStudentResultDocx(req, res) {
   res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
   res.send(buffer);
 }
+
+// ─── Session: Claim with waitToken (no password resend) ─────────────────────
+
+export async function sessionClaimWithToken(req, res) {
+  const { waitToken } = req.body;
+  if (!waitToken) throw new ApiError(400, 'waitToken is required');
+
+  let payload;
+  try {
+    payload = verifyWaitToken(waitToken);
+  } catch (err) {
+    if (err.name === 'TokenExpiredError') {
+      throw new ApiError(401, 'WAIT_TOKEN_EXPIRED');
+    }
+    throw new ApiError(401, 'Invalid wait token');
+  }
+
+  const { studentId, examId } = payload;
+  const deviceKey = req.headers['x-device-key'] || 'unknown';
+  const ip = req.ip || '';
+  const ua = req.headers['user-agent'] || '';
+
+  const sessionResult = await claimSession(studentId, deviceKey, { examId, ua, ip });
+
+  if (!sessionResult.claimed) {
+    return res.status(409).json({
+      code: 'ACCOUNT_IN_USE',
+      retryAfterSeconds: 5,
+    });
+  }
+
+  // Find student and exam to build the full response
+  const [student, exam] = await Promise.all([
+    User.findById(studentId).select('_id studentId fullName').lean(),
+    Exam.findById(examId).select('_id title description subject durationMinutes passingMark instructions').lean(),
+  ]);
+
+  if (!student || !exam) throw new ApiError(404, 'Student or exam not found');
+
+  // Find existing attempt
+  const attempt = await Attempt.findOne({ examId, studentId }).select('_id deadline').lean();
+
+  invalidateSessionCache(studentId);
+  const token = signStudentExamToken(studentId, examId, sessionResult.sessionId);
+
+  await logSessionEvent({
+    studentId,
+    examId,
+    type: 'started',
+    deviceLabel: sessionResult.deviceLabel,
+    ipMasked: null,
+  }).catch(() => {});
+
+  res.json({
+    token,
+    attemptId: attempt?._id || null,
+    exam: {
+      id: exam._id,
+      title: exam.title,
+      description: exam.description || '',
+      subject: exam.subject,
+      durationMinutes: exam.durationMinutes,
+      passingMark: exam.passingMark,
+      instructions: exam.instructions,
+    },
+    student: {
+      id: student._id,
+      studentId: student.studentId,
+      fullName: student.fullName,
+    },
+  });
+}
+
+// ─── Session: Heartbeat ───────────────────────────────────────────────────────
+
+export async function sessionHeartbeat(req, res) {
+  const { userId, sid } = req.user;
+  if (!sid) return res.json({ ok: true, blockedSinceLast: 0 });
+
+  const result = await renewLease(userId, sid);
+
+  if (!result.renewed) {
+    return res.status(401).json({ code: 'SESSION_REPLACED' });
+  }
+
+  res.json({ ok: true, blockedSinceLast: result.blockedSinceLast });
+}
+
+// ─── Session: Logout ──────────────────────────────────────────────────────────
+
+export async function logoutStudent(req, res) {
+  const { userId, sid } = req.user;
+
+  if (sid) {
+    await releaseSession(userId, sid, 'logout').catch(() => {});
+    invalidateSessionCache(userId);
+    await logSessionEvent({
+      studentId: userId,
+      type: 'released',
+      deviceLabel: null,
+      ipMasked: null,
+    }).catch(() => {});
+  }
+
+  res.json({ ok: true });
+}
+
+// ─── Session: Soft-release (navigator.sendBeacon from pagehide) ──────────────
+
+export async function softReleaseStudentSession(req, res) {
+  // Body arrives as text/plain (CORS-safe for sendBeacon without preflight)
+  let body = req.body;
+  if (typeof body === 'string') {
+    try { body = JSON.parse(body); } catch { body = {}; }
+  }
+
+  const token = body?.token || req.headers['x-session-token'];
+  if (!token) return res.json({ ok: true });
+
+  try {
+    const jwt_ = await import('jsonwebtoken');
+    const { env: envConfig } = await import('../config/env.js');
+    const payload = jwt_.default.verify(token, envConfig.JWT_SECRET);
+    const userId = payload.userId;
+    const sid = payload.sid;
+    if (userId && sid) {
+      await softReleaseSession(userId, sid).catch(() => {});
+    }
+  } catch {
+    // Ignore invalid tokens — silent soft release failure is fine
+  }
+
+  res.json({ ok: true });
+}
+

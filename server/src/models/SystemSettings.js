@@ -27,6 +27,18 @@ const systemSettingsSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    // Exam security: single-device sign-in
+    singleDeviceSignIn: {
+      type: Boolean,
+      default: true,
+    },
+    // Lease duration in seconds (HEARTBEAT must be < LEASE; valid range 45–300)
+    leaseSeconds: {
+      type: Number,
+      default: 75,
+      min: 45,
+      max: 300,
+    },
   },
   { timestamps: true }
 );
